@@ -1,0 +1,13 @@
+{
+    "tailwindCSS.includeLanguages": {
+        "templ": "html"
+    },
+    "cSpell.words": [
+        "flyonui",
+        "hotreload",
+        "htmx",
+        "stylesheet",
+        "templ",
+        "ternaryss"
+    ]
+}

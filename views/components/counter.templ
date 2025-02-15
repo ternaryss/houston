@@ -1,0 +1,10 @@
+package components
+
+import "fmt"
+
+templ Counter(count int) {
+	<div id="counter" class="container text-center">
+		<p class="mx-auto bg-gradient-to-r from-primary to-error bg-clip-text text-transparent font-black text-9xl w-fit">{ fmt.Sprintf("%d", count) }</p>
+		<button hx-get={ fmt.Sprintf("/?count=%d", count) } hx-trigger="click" hx-target="#counter" hx-swap="outerHTML" class="mt-4 btn btn-primary">Add <span class="icon-[tabler--layout-grid-add]"></span></button>
+	</div>
+}

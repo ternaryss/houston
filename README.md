@@ -1,7 +1,11 @@
 # Houston we have (no) problem
 
-**Houston** is a lightweight and efficient web application designed for monitoring the availability of other web 
-applications. Built with simplicity in mind, it provides an easy-to-use alternative to complex monitoring solutions like 
+<p align="center">
+    <img src="./houston.jpg">
+</p>
+
+**Houston** is a lightweight and efficient web application designed for monitoring the availability of other web
+applications. Built with simplicity in mind, it provides an easy-to-use alternative to complex monitoring solutions like
 Grafana.
 
 **Key Features**:
@@ -11,5 +15,111 @@ Grafana.
 - Email notifications in case of failures
 - Visual representation of service uptime history through graphs
 
-Houston ensures that you stay informed about the health of your applications without unnecessary complexity or resource 
+Houston ensures that you stay informed about the health of your applications without unnecessary complexity or resource
 overhead.
+
+**Contents**:
+
+1. [Technology](#Technology)
+2. [Migrations](#Migrations)
+3. [Getting started](#Getting-started)
+4. [Settings](#Settings)
+
+## Technology
+
+1. **GoLang** - vanilla Go as core of the application
+2. **SQLite** - relational database as a file
+3. **Templ** - templates markup & HTML rendering
+4. **TailwindCSS** - templates styling engine
+5. **FlyonUI** - library of ready to use TailwindCSS components
+6. **HTMX** - JS magic without JS development
+7. **Air** - application Hot Reload
+
+## Migrations
+
+Houston application stores data in relational database. For easier development, **GOOSE** migration tool is used
+to automate database maintenance. Migrations lives in `./migrations`. New migration can be created with:
+
+```bash
+goose -dir=./migrations create [migration_name] sql
+```
+
+If there is no **GOOSE** installed, run:
+
+```bash
+go install github.com/pressly/goose/v3/cmd/goose@latest
+```
+
+Ready to use migration can be applied on existing database wih:
+
+```bash
+make up
+```
+
+Last migration rollback can be achieved with:
+
+```bash
+make down
+```
+
+Migrations status can be checked with:
+
+```bash
+make status
+```
+
+## Getting started
+
+Application build & run is fully automated. Application can be run in one of two modes:
+
+1. **Standard** - just build & run application
+2. **Hot Reload** - build & run application, watch for files changes & apply them live
+
+To run application in Hot Reload mode, use:
+
+```bash
+make
+```
+
+To run application in standard mode, use:
+
+```bash
+make run
+```
+
+By default, application will be ready under [localhost](http://127.0.0.1:8080).
+
+## Settings
+
+Default application configuration is described below in form of YAML file. Application is searching for configuration in
+3 ways:
+
+1. Read `./app.yml`.
+2. Read `./config/app.yml`.
+3. If no configuration found, use defaults.
+
+Additionally, if configuration file do not contain specific variables, default values will be used.
+
+
+```yaml
+# Logs configuration
+logs:
+  # Should log to file?
+  file-enabled: false
+  # Max single logs file size in MB
+  max-size: 10
+  # Max age of single logs file in days (logs rotation)
+  max-age: 30
+
+# Server configuration
+server:
+  # Host
+  host: "0.0.0.0"
+  # Port
+  port: "8080"
+
+# Database configuration
+database:
+  # Path to SQLite database file
+  file: "./data/app.db"
+```
