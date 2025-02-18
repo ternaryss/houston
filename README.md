@@ -34,6 +34,7 @@ overhead.
 5. **FlyonUI** - library of ready to use TailwindCSS components
 6. **HTMX** - JS magic without JS development
 7. **Air** - application Hot Reload
+8. **Docker** - universal running environment
 
 ## Migrations
 
@@ -88,6 +89,29 @@ make run
 ```
 
 By default, application will be ready under [localhost](http://127.0.0.1:8080).
+
+### Docker
+
+Application is ready to use with Docker. Image can be built with:
+
+```bash
+docker build -t houston:dev .
+```
+
+Nextly, it can be run with `docker compose`:
+
+```bash
+docker compose up -d
+```
+
+By default, in compose file, all needed data are linked to the container as volumes to share with development environment:
+
+1. `./configs/app.yml` - application configuration
+2. `./data/app.db` - SQLite database file
+3. `./logs` - application logs
+
+Read to use image for download is always available at [Docker Hub](https://hub.docker.com). It is recommended to link
+above data to the running container for data persistence.
 
 ## Settings
 
