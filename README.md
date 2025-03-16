@@ -24,6 +24,7 @@ overhead.
 2. [Migrations](#Migrations)
 3. [Getting started](#Getting-started)
 4. [Settings](#Settings)
+5. [Tests](#Tests)
 
 ## Technology
 
@@ -146,4 +147,20 @@ server:
 database:
   # Path to SQLite database file
   file: "./data/app.db"
+```
+
+## Tests
+
+All unit tests are stored in `tests` directory. For unit testing data stores are mocked with in memory (maps)
+implementation. Application is designed with commands execution approach, so only commands should be unit tested
+(this covers whole business logic). Unit tests can be launched with:
+
+```bash
+make test
+```
+
+Above command will out full unit tests report. To run tests without detailed output use:
+
+```bash
+make test_no_output
 ```

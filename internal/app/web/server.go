@@ -10,13 +10,30 @@ import (
 )
 
 type server struct {
-	settings settings.Settings
+	settings         settings.Settings
+	errorsHandler    *handlers.ErrorsHandler
+	dashboardHandler *handlers.DashboardHandler
+	usersHandler     *handlers.UsersHandler
 }
 
-func NewServer(stg settings.Settings) *server {
+func NewServer(
+	stg settings.Settings,
+	erh *handlers.ErrorsHandler,
+	dsh *handlers.DashboardHandler,
+	ush *handlers.UsersHandler,
+) *server {
 	return &server{
-		settings: stg,
+		settings:         stg,
+		errorsHandler:    erh,
+		dashboardHandler: dsh,
+		usersHandler:     ush,
 	}
+}
+
+func (s *server) middlewares() middleware {
+	return middlewaresChain(
+		requestTimeMiddleware,
+	)
 }
 
 func (s *server) staticFiles(rtr *http.ServeMux) {
@@ -25,7 +42,11 @@ func (s *server) staticFiles(rtr *http.ServeMux) {
 }
 
 func (s *server) routes(rtr *http.ServeMux) {
-	rtr.HandleFunc("/", handlers.Hello)
+	rtr.HandleFunc("/not-found", s.errorsHandler.NotFoundError)
+	rtr.HandleFunc("/error", s.errorsHandler.InternalServerError)
+	rtr.HandleFunc("/sign-up", s.usersHandler.SignUp)
+	rtr.HandleFunc("/{$}", s.dashboardHandler.Dashboard)
+	rtr.HandleFunc("/", s.errorsHandler.NotFoundError)
 }
 
 func (s *server) Run() {
@@ -35,7 +56,7 @@ func (s *server) Run() {
 	s.routes(router)
 	server := &http.Server{
 		Addr:    addr,
-		Handler: router,
+		Handler: s.middlewares()(router),
 	}
 	slog.Info("HTTP server started", "addr", addr)
 	server.ListenAndServe()

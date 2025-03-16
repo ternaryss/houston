@@ -3,7 +3,7 @@ dsn = ./data/app.db
 
 all: hotreload
 
-build: clean volumes
+build: clean volumes test_no_output
 	@echo "--- Building ---"
 	@npm install
 	@npx tailwindcss -i ./views/tailwind.css -o ./public/css/styles.css
@@ -27,6 +27,8 @@ help:
 	@echo "hotreload - runs application in Hot Reload mode"
 	@echo "run - run application"
 	@echo "status - check database migrations status"
+	@echo "test - run unit tests"
+	@echo "test_no_output - run unit tests without detailed output"
 	@echo "up - apply databases migrations"
 	@echo "volumes - prepare filesystem to build & run application"
 
@@ -41,6 +43,14 @@ run: build up
 status: volumes
 	@echo "--- Migrations status ---"
 	@GOOSE_DRIVER=sqlite3 GOOSE_DBSTRING=$(dsn) goose -dir=./migrations status
+
+test:
+	@echo "--- Testing ---"
+	@go test -v ./tests/cmd
+
+test_no_output:
+	@echo "--- Testing (no output) ---"
+	@go test ./tests/cmd
 
 up: volumes
 	@echo "--- Migrations up ---"

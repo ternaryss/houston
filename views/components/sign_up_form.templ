@@ -1,0 +1,67 @@
+package components
+
+import "github.com/ternaryss/houston/internal/app/types"
+
+templ SignUpForm(frm types.SignUpFrom) {
+	<form id="signUpForm" hx-post="/sign-up" hx-target="#signUpForm" hx-swap="outerHTML" class="w-full md:w-[500px] p-5 md:p-10 md:border md:rounded-lg">
+		<h1 class="text-center text-base-content text-4xl">
+			Houston
+		</h1>
+		<div class="mt-4 mx-auto input-group max-w-sm">
+			<div class="relative w-full">
+				if _, invalid := frm.Errors["email"]; invalid {
+					<input id="email" name="email" type="email" placeholder="Address e-mail" value={ frm.Email } class="input input-floating peer is-invalid" required/>
+				} else {
+					<input id="email" name="email" type="email" placeholder="Address e-mail" value={ frm.Email } class="input input-floating peer" required/>
+				}
+				<label for="email" class="input-floating-label">Address e-mail</label>
+			</div>
+			<span class="input-group-text">
+				<span class="icon-[tabler--user] text-base-content/80 size-5"></span>
+			</span>
+		</div>
+		if err, invalid := frm.Errors["email"]; invalid {
+			<span class="label mx-auto max-w-sm">
+				<span class="label-text-alt">{ err.Msg }</span>
+			</span>
+		}
+		<div class="mt-4 mx-auto input-group max-w-sm">
+			<div class="relative w-full">
+				if _, invalid := frm.Errors["password"]; invalid {
+					<input id="password" name="password" type="password" placeholder="Password" value={ frm.Password } class="input input-floating peer is-invalid" required/>
+				} else {
+					<input id="password" name="password" type="password" placeholder="Password" value={ frm.Password } class="input input-floating peer" required/>
+				}
+				<label for="password" class="input-floating-label">Password</label>
+			</div>
+			<span class="input-group-text">
+				<span class="icon-[tabler--lock] text-base-content/80 size-5"></span>
+			</span>
+		</div>
+		<div class="mt-4 mx-auto input-group max-w-sm">
+			<div class="relative w-full">
+				if _, invalid := frm.Errors["password"]; invalid {
+					<input id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password" value={ frm.RepeatPassword } class="input input-floating peer is-invalid" required/>
+				} else {
+					<input id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password" value={ frm.RepeatPassword } class="input input-floating peer" required/>
+				}
+				<label for="repeatPassword" class="input-floating-label">Repeat password</label>
+			</div>
+			<span class="input-group-text">
+				<span class="icon-[tabler--repeat] text-base-content/80 size-5"></span>
+			</span>
+		</div>
+		if err, invalid := frm.Errors["password"]; invalid {
+			<span class="label mx-auto max-w-sm">
+				<span class="label-text-alt">{ err.Msg }</span>
+			</span>
+		}
+		<div class="w-full mt-4 text-center">
+			<button type="submit" class="btn btn-primary">Sign up <span class="icon-[tabler--user-down]"></span></button>
+		</div>
+		<div class="w-full mt-2 text-center">
+			<!-- TODO: redirect to Sign in page -->
+			or <a class="link link-primary link-animated" href="#">Sign in</a>
+		</div>
+	</form>
+}

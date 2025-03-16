@@ -48,6 +48,10 @@ func NewDbProvider(stg settings.Settings) *dbProvider {
 	return provider
 }
 
+func (p *dbProvider) Db() *sql.DB {
+	return p.db
+}
+
 func (p *dbProvider) CloseConnection() {
 	if err := p.db.Close(); err != nil {
 		slog.Error("SQLite connection closing failed", "err", err)
