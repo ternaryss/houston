@@ -4,6 +4,7 @@ History of **Houston we have (no) problem** application with changes description
 
 ## Next release
 
+- `FEATURE` Sign in
 - `FEATURE` Sign up
 - `FEATURE` Request execution time middleware
 - `FEATURE` Containerization with Docker

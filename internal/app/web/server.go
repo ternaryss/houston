@@ -33,6 +33,7 @@ func NewServer(
 func (s *server) middlewares() middleware {
 	return middlewaresChain(
 		requestTimeMiddleware,
+		authorizationMiddleware(s.settings),
 	)
 }
 
@@ -41,10 +42,15 @@ func (s *server) staticFiles(rtr *http.ServeMux) {
 	rtr.Handle("/public/", http.StripPrefix("/public/", public))
 }
 
-func (s *server) routes(rtr *http.ServeMux) {
+func (s *server) routes(rtr *http.ServeMux, ebd bool) {
 	rtr.HandleFunc("/not-found", s.errorsHandler.NotFoundError)
 	rtr.HandleFunc("/error", s.errorsHandler.InternalServerError)
-	rtr.HandleFunc("/sign-up", s.usersHandler.SignUp)
+	rtr.HandleFunc("/sign-in", s.usersHandler.SignIn)
+
+	if ebd {
+		rtr.HandleFunc("/sign-up", s.usersHandler.SignUp)
+	}
+
 	rtr.HandleFunc("/{$}", s.dashboardHandler.Dashboard)
 	rtr.HandleFunc("/", s.errorsHandler.NotFoundError)
 }
@@ -53,7 +59,7 @@ func (s *server) Run() {
 	addr := fmt.Sprintf("%s:%s", s.settings.Server.Host, s.settings.Server.Port)
 	router := http.NewServeMux()
 	s.staticFiles(router)
-	s.routes(router)
+	s.routes(router, s.settings.Authorization.SignUp.Enabled)
 	server := &http.Server{
 		Addr:    addr,
 		Handler: s.middlewares()(router),

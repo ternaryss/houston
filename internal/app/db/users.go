@@ -59,8 +59,8 @@ func (s *usersStore) GetByEmail(eml string) (*types.User, error) {
 		return nil, err
 	}
 
-	user.CreatedAt = time.Unix(createdAt, 0)
-	user.ModifiedAt = time.Unix(modifiedAt, 0)
+	user.CreatedAt = time.Unix(createdAt, 0).UTC()
+	user.ModifiedAt = time.Unix(modifiedAt, 0).UTC()
 
 	return &user, nil
 }

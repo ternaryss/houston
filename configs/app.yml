@@ -9,3 +9,9 @@ server:
 
 database:
   file: "./data/app.db"
+
+authorization:
+  secret: "9430be4b-ad7d-4168-87c6-ef57f889499b"
+  expires-after: 12
+  sign-up:
+    enabled: true

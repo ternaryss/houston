@@ -14,7 +14,7 @@ func main() {
 	usersStore := db.NewUsersStore(dbProvider.Db())
 	errorsHandler := handlers.NewErrorsHandler()
 	dashboardHandler := handlers.NewDashboardHandler()
-	usersHandler := handlers.NewUsersHandler(usersStore)
+	usersHandler := handlers.NewUsersHandler(settings, usersStore)
 	server := web.NewServer(settings, errorsHandler, dashboardHandler, usersHandler)
 	server.Run()
 }

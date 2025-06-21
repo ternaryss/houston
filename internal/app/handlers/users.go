@@ -5,23 +5,86 @@ import (
 
 	"github.com/ternaryss/houston/internal/app/handlers/cmd"
 	"github.com/ternaryss/houston/internal/app/helpers"
+	"github.com/ternaryss/houston/internal/app/settings"
 	"github.com/ternaryss/houston/internal/app/types"
 	"github.com/ternaryss/houston/views"
 	"github.com/ternaryss/houston/views/components"
 )
 
 type UsersHandler struct {
+	settings   settings.Settings
 	usersStore types.UsersStore
 }
 
-func NewUsersHandler(urs types.UsersStore) *UsersHandler {
+func NewUsersHandler(stg settings.Settings, urs types.UsersStore) *UsersHandler {
 	return &UsersHandler{
+		settings:   stg,
 		usersStore: urs,
 	}
 }
 
+func (h *UsersHandler) SignIn(res http.ResponseWriter, req *http.Request) {
+	userCtx := req.Context().Value(types.CtxUserKey)
+	user, ok := userCtx.(string)
+
+	if ok && user != "" {
+		helpers.Redirect("/", res, req)
+		return
+	}
+
+	signUpEnabled := h.settings.Authorization.SignUp.Enabled
+	form, err := types.NewSignInForm(nil)
+
+	if err != nil {
+		helpers.InternalServerError(err, res, req)
+		return
+	}
+
+	if req.Method == http.MethodPost {
+		form, err = types.NewSignInForm(req)
+
+		if err != nil {
+			helpers.InternalServerError(err, res, req)
+			return
+		}
+
+		token, err := cmd.NewSignInCmd(h.settings, h.usersStore).Execute(form)
+
+		if err != nil {
+			helpers.InternalServerError(err, res, req)
+			return
+		}
+
+		if len(form.Errors) > 0 {
+			helpers.Render(components.SignInForm(form, signUpEnabled), res, req)
+			return
+		}
+
+		cookie := &http.Cookie{
+			Name:     "token",
+			Value:    token,
+			HttpOnly: true,
+			Secure:   true,
+			Path:     "/",
+		}
+		http.SetCookie(res, cookie)
+		helpers.Redirect("/", res, req)
+		return
+	}
+
+	template := views.SignIn(form, signUpEnabled)
+	helpers.RenderPage(template, res, req)
+}
+
 func (h *UsersHandler) SignUp(res http.ResponseWriter, req *http.Request) {
-	// TODO: redirect to dashboard if Signed in
+	userCtx := req.Context().Value(types.CtxUserKey)
+	user, ok := userCtx.(string)
+
+	if ok && user != "" {
+		helpers.Redirect("/", res, req)
+		return
+	}
+
 	form, err := types.NewSignUpForm(nil)
 
 	if err != nil {
@@ -47,8 +110,8 @@ func (h *UsersHandler) SignUp(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		// TODO: redirect to Sign in
-		helpers.Redirect("/", res, req)
+		helpers.Redirect("/sign-in", res, req)
+		return
 	}
 
 	template := views.SignUp(form)

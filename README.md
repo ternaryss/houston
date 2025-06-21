@@ -147,6 +147,17 @@ server:
 database:
   # Path to SQLite database file
   file: "./data/app.db"
+
+# Authorization configuration
+authorization:
+  # Secret to generate JWT token
+  secret: ""
+  # JWT token expire after X hours
+  expires-after: 12
+  # Sign up configuration
+  sign-up:
+    # Public sign up enabled
+    enabled: true
 ```
 
 ## Tests

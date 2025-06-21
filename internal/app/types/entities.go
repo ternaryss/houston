@@ -10,7 +10,7 @@ type User struct {
 }
 
 func NewUser(email, password string) *User {
-	now := time.Now()
+	now := time.Now().UTC()
 
 	return &User{
 		Email:      email,

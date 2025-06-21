@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var paths = [2]string{"./app.yml", "./configs/app.yml"}
+var defaultPaths = [2]string{"./app.yml", "./configs/app.yml"}
 
 type logs struct {
 	FileEnabled bool `yaml:"file-enabled"`
@@ -26,10 +26,21 @@ type database struct {
 	File string `yaml:"file"`
 }
 
+type signUp struct {
+	Enabled bool `yaml:"enabled"`
+}
+
+type authorization struct {
+	Secret       string `yaml:"secret"`
+	ExpiresAfter int    `yaml:"expires-after"`
+	SignUp       signUp `yaml:"sign-up"`
+}
+
 type Settings struct {
-	Logs     logs     `yaml:"logs"`
-	Server   server   `yaml:"server"`
-	Database database `yaml:"database"`
+	Logs          logs          `yaml:"logs"`
+	Server        server        `yaml:"server"`
+	Database      database      `yaml:"database"`
+	Authorization authorization `yaml:"authorization"`
 }
 
 var loadedSettings *Settings
@@ -47,6 +58,13 @@ func defaultSettings() *Settings {
 		},
 		Database: database{
 			File: "./data/app.db",
+		},
+		Authorization: authorization{
+			Secret:       "",
+			ExpiresAfter: 12,
+			SignUp: signUp{
+				Enabled: true,
+			},
 		},
 	}
 }
@@ -74,13 +92,14 @@ func (s *Settings) configureLogger() {
 	slog.SetDefault(logger)
 }
 
-func LoadSettings() Settings {
+func LoadSettings(phs ...string) Settings {
 	if loadedSettings != nil {
-		slog.Error("Settings already loaded")
-		os.Exit(1)
+		slog.Warn("Settings already loaded")
+		return *loadedSettings
 	}
 
 	loadedSettings = defaultSettings()
+	paths := append(phs, defaultPaths[:]...)
 	var file *os.File
 	var fileErr error
 

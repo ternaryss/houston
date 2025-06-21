@@ -2,14 +2,14 @@ package components
 
 import "github.com/ternaryss/houston/internal/app/types"
 
-templ SignUpForm(frm types.SignUpFrom) {
-	<form id="signUpForm" hx-post="/sign-up" hx-target="#signUpForm" hx-swap="outerHTML" class="w-full md:w-[500px] p-5 md:p-10 md:border md:rounded-lg">
+templ SignInForm(frm types.SignInForm, ebd bool) {
+	<form id="signInForm" hx-post="/sign-in" hx-target="#signInForm" hx-swap="outerHTML" class="w-full md:w-[500px] p-5 md:p-10 md:border md:rounded-lg">
 		<h1 class="text-center text-base-content text-4xl">
 			Houston
 		</h1>
 		<div class="mt-4 mx-auto input-group max-w-sm">
 			<div class="relative w-full">
-				if _, invalid := frm.Errors["email"]; invalid {
+				if _, invalid := frm.Errors["password"]; invalid {
 					<input id="email" name="email" type="email" placeholder="Address e-mail" value={ frm.Email } class="input input-floating peer is-invalid" required/>
 				} else {
 					<input id="email" name="email" type="email" placeholder="Address e-mail" value={ frm.Email } class="input input-floating peer" required/>
@@ -20,11 +20,6 @@ templ SignUpForm(frm types.SignUpFrom) {
 				<span class="icon-[tabler--user] text-base-content/80 size-5"></span>
 			</span>
 		</div>
-		if err, invalid := frm.Errors["email"]; invalid {
-			<span class="label mx-auto max-w-sm">
-				<span class="label-text-alt">{ err.Msg }</span>
-			</span>
-		}
 		<div class="mt-4 mx-auto input-group max-w-sm">
 			<div class="relative w-full">
 				if _, invalid := frm.Errors["password"]; invalid {
@@ -38,29 +33,18 @@ templ SignUpForm(frm types.SignUpFrom) {
 				<span class="icon-[tabler--lock] text-base-content/80 size-5"></span>
 			</span>
 		</div>
-		<div class="mt-4 mx-auto input-group max-w-sm">
-			<div class="relative w-full">
-				if _, invalid := frm.Errors["password"]; invalid {
-					<input id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password" value={ frm.RepeatPassword } class="input input-floating peer is-invalid" required/>
-				} else {
-					<input id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password" value={ frm.RepeatPassword } class="input input-floating peer" required/>
-				}
-				<label for="repeatPassword" class="input-floating-label">Repeat password</label>
-			</div>
-			<span class="input-group-text">
-				<span class="icon-[tabler--repeat] text-base-content/80 size-5"></span>
-			</span>
-		</div>
 		if err, invalid := frm.Errors["password"]; invalid {
 			<span class="label mx-auto max-w-sm">
 				<span class="label-text-alt">{ err.Msg }</span>
 			</span>
 		}
 		<div class="w-full mt-4 text-center">
-			<button type="submit" class="btn btn-primary">Sign up <span class="icon-[tabler--user-down]"></span></button>
+			<button type="submit" class="btn btn-primary">Sign in <span class="icon-[tabler--lock-open]"></span></button>
 		</div>
-		<div class="w-full mt-2 text-center">
-			or <a class="link link-primary link-animated" href="/sign-in">Sign in</a>
-		</div>
+		if ebd {
+			<div class="w-full mt-2 text-center">
+				or <a class="link link-primary link-animated" href="/sign-up">Sign up</a>
+			</div>
+		}
 	</form>
 }

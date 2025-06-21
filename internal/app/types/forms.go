@@ -6,6 +6,38 @@ import (
 	"regexp"
 )
 
+type SignInForm struct {
+	Email    string
+	Password string
+	Errors   map[string]FieldError
+}
+
+func NewSignInForm(request *http.Request) (SignInForm, error) {
+	if request == nil {
+		return SignInForm{}, nil
+	}
+
+	if err := request.ParseForm(); err != nil {
+		return SignInForm{}, err
+	}
+
+	return SignInForm{
+		Email:    request.FormValue("email"),
+		Password: request.FormValue("password"),
+		Errors:   make(map[string]FieldError),
+	}, nil
+}
+
+func (f SignInForm) Validate() {
+	if f.Email == "" || f.Password == "" {
+		f.Errors["password"] = NewFieldError("password", "Invalid address e-mail or password.")
+	} else {
+		if _, err := mail.ParseAddress(f.Email); err != nil {
+			f.Errors["password"] = NewFieldError("password", "Invalid address e-mail or password.")
+		}
+	}
+}
+
 type SignUpFrom struct {
 	Email          string
 	Password       string
