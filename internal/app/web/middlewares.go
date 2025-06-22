@@ -30,9 +30,10 @@ func middlewaresChain(mid ...middleware) middleware {
 func requestTimeMiddleware(nxt http.Handler) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		start := time.Now()
+		user := helpers.AuthPrincipal(req)
 		nxt.ServeHTTP(res, req)
 		duration := time.Since(start)
-		slog.Info("Request info", "method", req.Method, "path", req.RequestURI, "time", fmt.Sprintf("%dms", duration.Microseconds()))
+		slog.Info("Request info", "user", user, "method", req.Method, "path", req.RequestURI, "time", fmt.Sprintf("%dms", duration.Microseconds()))
 	}
 }
 

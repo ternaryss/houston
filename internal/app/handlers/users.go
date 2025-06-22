@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/ternaryss/houston/internal/app/handlers/cmd"
 	"github.com/ternaryss/houston/internal/app/helpers"
@@ -24,10 +25,9 @@ func NewUsersHandler(stg settings.Settings, urs types.UsersStore) *UsersHandler 
 }
 
 func (h *UsersHandler) SignIn(res http.ResponseWriter, req *http.Request) {
-	userCtx := req.Context().Value(types.CtxUserKey)
-	user, ok := userCtx.(string)
+	user := helpers.AuthPrincipal(req)
 
-	if ok && user != "" {
+	if user != "" {
 		helpers.Redirect("/", res, req)
 		return
 	}
@@ -76,11 +76,24 @@ func (h *UsersHandler) SignIn(res http.ResponseWriter, req *http.Request) {
 	helpers.RenderPage(template, res, req)
 }
 
-func (h *UsersHandler) SignUp(res http.ResponseWriter, req *http.Request) {
-	userCtx := req.Context().Value(types.CtxUserKey)
-	user, ok := userCtx.(string)
+func (h *UsersHandler) SignOut(res http.ResponseWriter, req *http.Request) {
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/",
+		MaxAge:   -1,
+	}
+	http.SetCookie(res, cookie)
+	helpers.Redirect("/sign-in", res, req)
+}
 
-	if ok && user != "" {
+func (h *UsersHandler) SignUp(res http.ResponseWriter, req *http.Request) {
+	user := helpers.AuthPrincipal(req)
+
+	if user != "" {
 		helpers.Redirect("/", res, req)
 		return
 	}

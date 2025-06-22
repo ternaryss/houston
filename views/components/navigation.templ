@@ -17,8 +17,7 @@ templ Navigation(usr string) {
 			<div id="default-navbar-collapse" class="md:navbar-end collapse hidden grow basis-full overflow-hidden transition-[height] duration-300 max-md:w-full">
 				<div class="md:flex md:items-center md:gap-2 md:ml-auto max-md:mt-2 max-md:text-center max-md:w-full">
 					<span class="block max-md:mb-2 text-base text-base-content">{ usr }</span>
-					<!-- TODO: sign out functionality -->
-					<button type="submit" class="btn btn-error w-full md:w-auto">Sign out <span class="icon-[tabler--logout]"></span></button>
+					<button hx-post="/sign-out" hx-trigger="click" class="btn btn-error w-full md:w-auto">Sign out <span class="icon-[tabler--logout]"></span></button>
 				</div>
 			</div>
 		</div>

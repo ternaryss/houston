@@ -32,8 +32,8 @@ func NewServer(
 
 func (s *server) middlewares() middleware {
 	return middlewaresChain(
-		requestTimeMiddleware,
 		authorizationMiddleware(s.settings),
+		requestTimeMiddleware,
 	)
 }
 
@@ -46,6 +46,7 @@ func (s *server) routes(rtr *http.ServeMux, ebd bool) {
 	rtr.HandleFunc("/not-found", s.errorsHandler.NotFoundError)
 	rtr.HandleFunc("/error", s.errorsHandler.InternalServerError)
 	rtr.HandleFunc("/sign-in", s.usersHandler.SignIn)
+	rtr.HandleFunc("POST /sign-out", s.usersHandler.SignOut)
 
 	if ebd {
 		rtr.HandleFunc("/sign-up", s.usersHandler.SignUp)

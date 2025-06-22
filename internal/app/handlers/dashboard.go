@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ternaryss/houston/internal/app/helpers"
-	"github.com/ternaryss/houston/internal/app/types"
 	"github.com/ternaryss/houston/views"
 )
 
@@ -15,7 +14,7 @@ func NewDashboardHandler() *DashboardHandler {
 }
 
 func (h *DashboardHandler) Dashboard(res http.ResponseWriter, req *http.Request) {
-	user := req.Context().Value(types.CtxUserKey).(string)
+	user := helpers.AuthPrincipal(req)
 	template := views.Dashboard(user)
 	helpers.RenderPage(template, res, req)
 }
