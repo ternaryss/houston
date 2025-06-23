@@ -31,11 +31,12 @@ overhead.
 1. **GoLang** - vanilla Go as core of the application
 2. **SQLite** - relational database as a file
 3. **Templ** - templates markup & HTML rendering
-4. **TailwindCSS** - templates styling engine
-5. **FlyonUI** - library of ready to use TailwindCSS components
-6. **HTMX** - JS magic without JS development
-7. **Air** - application Hot Reload
-8. **Docker** - universal running environment
+4. **Cobra** - CLI interface
+5. **TailwindCSS** - templates styling engine
+6. **FlyonUI** - library of ready to use TailwindCSS components
+7. **HTMX** - JS magic without JS development
+8. **Air** - application Hot Reload
+9. **Docker** - universal running environment
 
 ## Migrations
 
@@ -90,6 +91,15 @@ make run
 ```
 
 By default, application will be ready under [localhost](http://127.0.0.1:8080).
+
+### CLI
+
+When application is built as binary, you can run it from CLI. Houston provides more than one CLI command, to see all
+available options run:
+
+```bash
+houston --help
+```
 
 ### Docker
 

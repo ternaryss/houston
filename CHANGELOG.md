@@ -4,6 +4,7 @@ History of **Houston we have (no) problem** application with changes description
 
 ## Next release
 
+- `FEATURE` CLI backoffice user sign up
 - `FEATURE` Sign out
 - `FEATURE` Sign in
 - `FEATURE` Sign up
