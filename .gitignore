@@ -1,0 +1,7 @@
+**/.DS_Store
+**/*.log
+**/bin/
+**/data/
+**/public/
+**/views/**/*.go
+**/node_modules/

@@ -1,0 +1,12 @@
+package views
+
+import (
+	"github.com/ternaryss/houston/internal/app/types"
+	"github.com/ternaryss/houston/views/components"
+)
+
+templ SignUp(frm types.SignUpFrom) {
+	<div class="flex p-0 md:p-10 items-center justify-center min-h-screen">
+		@components.SignUpForm(frm)
+	</div>
+}

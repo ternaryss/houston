@@ -1,0 +1,10 @@
+services:
+  houston:
+    image: houston:dev
+    build: .
+    ports:
+      - 8080:8080
+    volumes:
+      - ./configs/app.yml:/app/app.yml:r
+      - ./data/app.db:/app/data/app.db:rw
+      - ./logs:/app/logs:rw

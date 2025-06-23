@@ -1,0 +1,6 @@
+logs:
+  file-enabled: false
+
+authorization:
+  secret: "d961291f-f4e1-444f-8cd3-8895b5102cee"
+  expires-after: 12

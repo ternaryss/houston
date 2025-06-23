@@ -1,0 +1,21 @@
+{
+	"name": "Go",
+	"image": "mcr.microsoft.com/devcontainers/go:1-1.23-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"sleistner.vscode-fileutils",
+				"eamodio.gitlens",
+				"streetsidesoftware.code-spell-checker",
+				"streetsidesoftware.code-spell-checker-polish",
+				"bradlc.vscode-tailwindcss",
+				"otovo-oss.htmx-tags",
+				"a-h.templ"
+			]
+		}
+	},
+	"postCreateCommand": "go install github.com/pressly/goose/v3/cmd/goose@latest && go install github.com/a-h/templ/cmd/templ@latest && go install github.com/air-verse/air@latest"
+}

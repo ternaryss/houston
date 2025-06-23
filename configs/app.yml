@@ -1,0 +1,17 @@
+logs:
+  file-enabled: false
+  max-size: 10
+  max-age: 30
+
+server:
+  host: "0.0.0.0"
+  port: "8080"
+
+database:
+  file: "./data/app.db"
+
+authorization:
+  secret: "9430be4b-ad7d-4168-87c6-ef57f889499b"
+  expires-after: 12
+  sign-up:
+    enabled: true
