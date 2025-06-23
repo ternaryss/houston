@@ -23,6 +23,7 @@ var rootCmd = &cobra.Command{
 		settings := settings.LoadSettings()
 		dbProvider := db.NewDbProvider(settings)
 		defer dbProvider.CloseConnection()
+		dbProvider.MigrateDatabase()
 		usersStore := db.NewUsersStore(dbProvider.Db())
 		errorsHandler := handlers.NewErrorsHandler()
 		dashboardHandler := handlers.NewDashboardHandler()
@@ -41,6 +42,7 @@ var createUserCmd = &cobra.Command{
 		settings := settings.LoadSettings()
 		dbProvider := db.NewDbProvider(settings)
 		defer dbProvider.CloseConnection()
+		dbProvider.MigrateDatabase()
 		usersStore := db.NewUsersStore(dbProvider.Db())
 		signUpCmd := icmd.NewSignUpCmd(usersStore)
 		payload := url.Values{}

@@ -6,13 +6,15 @@ import (
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pressly/goose/v3"
 	"github.com/ternaryss/houston/internal/app/settings"
 )
 
 var provider *dbProvider
 
 type dbProvider struct {
-	db *sql.DB
+	settings settings.Settings
+	db       *sql.DB
 }
 
 func NewDbProvider(stg settings.Settings) *dbProvider {
@@ -42,7 +44,8 @@ func NewDbProvider(stg settings.Settings) *dbProvider {
 
 	slog.Info("SQLite connection established")
 	provider = &dbProvider{
-		db: db,
+		settings: stg,
+		db:       db,
 	}
 
 	return provider
@@ -55,6 +58,18 @@ func (p *dbProvider) Db() *sql.DB {
 func (p *dbProvider) CloseConnection() {
 	if err := p.db.Close(); err != nil {
 		slog.Error("SQLite connection closing failed", "err", err)
+		os.Exit(1)
+	}
+}
+
+func (p *dbProvider) MigrateDatabase() {
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		slog.Error("Database dialect", "err", err)
+		os.Exit(1)
+	}
+
+	if err := goose.Up(p.db, "./migrations"); err != nil {
+		slog.Error("Database migration", "err", err)
 		os.Exit(1)
 	}
 }

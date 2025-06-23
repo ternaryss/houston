@@ -4,6 +4,8 @@ History of **Houston we have (no) problem** application with changes description
 
 ## Next release
 
+- `FEATURE` Smaller Docker image size
+- `FEATURE` Database migrations from application level
 - `FEATURE` CLI backoffice user sign up
 - `FEATURE` Sign out
 - `FEATURE` Sign in

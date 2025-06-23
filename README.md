@@ -71,6 +71,9 @@ Migrations status can be checked with:
 make status
 ```
 
+**WARNING**: all above is described for development purposes - application can migrate to the newest database version
+by itself (migrations are running from application level on startup).
+
 ## Getting started
 
 Application build & run is fully automated. Application can be run in one of two modes:

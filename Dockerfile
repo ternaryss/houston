@@ -18,16 +18,12 @@ RUN npx tailwindcss -i ./views/tailwind.css -o ./styles.css
 FROM golang:1.23.4-alpine AS image-stage
 RUN apk add --no-cache tzdata
 ENV TZ=Europe/Warsaw
-RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 WORKDIR /app
-COPY migrations ./migrations
 RUN mkdir -p ./data
 RUN touch ./data/app.db
 COPY static ./public
 RUN mkdir -p ./public/css
 COPY --from=static-stage /static/styles.css /app/public/css/styles.css
 COPY --from=build-stage /build/bin/houston /app/houston
-ENV GOOSE_DRIVER=sqlite3
-ENV GOOSE_MIGRATIONS=./migrations
-ENV GOOSE_DBSTRING="/app/data/app.db"
-CMD ["sh", "-c", "sleep 5 && goose -dir=$GOOSE_MIGRATIONS up && ./houston"]
+COPY --from=build-stage /build/migrations /app/migrations
+CMD ["sh", "-c", "./houston"]
