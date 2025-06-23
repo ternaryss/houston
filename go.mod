@@ -1,6 +1,6 @@
 module github.com/ternaryss/houston
 
-go 1.23.4
+go 1.24.3
 
 require (
 	github.com/a-h/templ v0.3.833
