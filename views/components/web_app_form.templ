@@ -1,0 +1,62 @@
+package components
+
+import "github.com/ternaryss/houston/internal/app/types"
+
+templ WebAppForm(frm types.WebAppForm) {
+	<form id="webAppForm" hx-post="/web-apps/add" hx-target="#webAppForm" hx-swap="outerHTML" class="mx-auto container">
+		<div class="flex items-center justify-between px-4">
+			<h3 class="text-base-content text-2xl truncate max-w-full">Add application</h3>
+			<div class="flex gap-2 shrink-0">
+				<a href="/" class="btn btn-square btn-error">
+					<span class="icon-[tabler--x]"></span>
+				</a>
+				<button type="submit" class="btn btn-square btn-primary">
+					<span class="icon-[tabler--device-floppy]"></span>
+				</button>
+			</div>
+		</div>
+		<hr class="my-4"/>
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 max-w-3xl mx-auto w-full">
+			<div class="col-span-2">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						if _, invalid := frm.Errors["name"]; invalid {
+							<input id="name" name="name" type="text" placeholder="Name" value={ frm.Name } class="input input-floating peer is-invalid" required/>
+						} else {
+							<input id="name" name="name" type="text" placeholder="Name" value={ frm.Name } class="input input-floating peer" required/>
+						}
+						<label for="name" class="input-floating-label">Name</label>
+					</div>
+					<span class="input-group-text">
+						<span class="icon-[tabler--letter-a] text-base-content/80 size-5"></span>
+					</span>
+				</div>
+				if err, invalid := frm.Errors["name"]; invalid {
+					<span class="label">
+						<span class="label-text-alt">{ err.Msg }</span>
+					</span>
+				}
+			</div>
+			<div class="col-span-2">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						if _, invalid := frm.Errors["url"]; invalid {
+							<input id="url" name="url" type="text" placeholder="URL" value={ frm.Url } class="input input-floating peer is-invalid" required/>
+						} else {
+							<input id="url" name="url" type="text" placeholder="URL" value={ frm.Url } class="input input-floating peer" required/>
+						}
+						<label for="url" class="input-floating-label">URL</label>
+					</div>
+					<span class="input-group-text">
+						<span class="icon-[tabler--planet] text-base-content/80 size-5"></span>
+					</span>
+				</div>
+				if err, invalid := frm.Errors["url"]; invalid {
+					<span class="label">
+						<span class="label-text-alt">{ err.Msg }</span>
+					</span>
+				}
+			</div>
+		</div>
+	</form>
+}

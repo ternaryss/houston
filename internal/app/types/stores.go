@@ -21,3 +21,8 @@ type UsersStore interface {
 	GetByEmail(eml string) (*User, error)
 	Insert(usr *User) (*User, error)
 }
+
+type WebAppsStore interface {
+	dbStore
+	Insert(wap *WebApp) (*WebApp, error)
+}

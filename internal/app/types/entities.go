@@ -19,3 +19,24 @@ func NewUser(email, password string) *User {
 		ModifiedAt: now,
 	}
 }
+
+type WebApp struct {
+	Id         string
+	Name       string
+	Url        string
+	UserEmail  string
+	CreatedAt  time.Time
+	ModifiedAt time.Time
+}
+
+func NewWebApp(name, url, userEmail string) *WebApp {
+	now := time.Now().UTC()
+
+	return &WebApp{
+		Name:       name,
+		Url:        url,
+		UserEmail:  userEmail,
+		CreatedAt:  now,
+		ModifiedAt: now,
+	}
+}

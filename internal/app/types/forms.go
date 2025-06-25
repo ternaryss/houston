@@ -3,6 +3,7 @@ package types
 import (
 	"net/http"
 	"net/mail"
+	"net/url"
 	"regexp"
 )
 
@@ -31,10 +32,12 @@ func NewSignInForm(request *http.Request) (SignInForm, error) {
 func (f SignInForm) Validate() {
 	if f.Email == "" || f.Password == "" {
 		f.Errors["password"] = NewFieldError("password", "Invalid address e-mail or password.")
-	} else {
-		if _, err := mail.ParseAddress(f.Email); err != nil {
-			f.Errors["password"] = NewFieldError("password", "Invalid address e-mail or password.")
-		}
+		return
+	}
+
+	if _, err := mail.ParseAddress(f.Email); err != nil {
+		f.Errors["password"] = NewFieldError("password", "Invalid address e-mail or password.")
+		return
 	}
 }
 
@@ -84,6 +87,50 @@ func (f SignUpFrom) Validate() {
 			if f.Password != f.RepeatPassword {
 				f.Errors["password"] = NewFieldError("password", "Passwords not match.")
 			}
+		}
+	}
+}
+
+type WebAppForm struct {
+	Name   string
+	Url    string
+	Errors map[string]FieldError
+}
+
+func NewWebAppForm(request *http.Request) (WebAppForm, error) {
+	if request == nil {
+		return WebAppForm{}, nil
+	}
+
+	if err := request.ParseForm(); err != nil {
+		return WebAppForm{}, err
+	}
+
+	return WebAppForm{
+		Name:   request.FormValue("name"),
+		Url:    request.FormValue("url"),
+		Errors: make(map[string]FieldError),
+	}, nil
+}
+
+func (f WebAppForm) Validate() {
+	if f.Name == "" {
+		f.Errors["name"] = NewFieldError("name", "Name is required")
+	}
+
+	if f.Url == "" {
+		f.Errors["url"] = NewFieldError("url", "URL is required")
+	} else {
+		url, err := url.ParseRequestURI(f.Url)
+
+		if err != nil {
+			f.Errors["url"] = NewFieldError("url", "Invalid URL")
+			return
+		}
+
+		if url.Scheme == "" || url.Host == "" {
+			f.Errors["url"] = NewFieldError("url", "Invalid URL")
+			return
 		}
 	}
 }

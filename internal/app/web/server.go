@@ -13,6 +13,7 @@ type server struct {
 	settings         settings.Settings
 	errorsHandler    *handlers.ErrorsHandler
 	dashboardHandler *handlers.DashboardHandler
+	webAppsHandler   *handlers.WebAppsHandler
 	usersHandler     *handlers.UsersHandler
 }
 
@@ -20,12 +21,14 @@ func NewServer(
 	stg settings.Settings,
 	erh *handlers.ErrorsHandler,
 	dsh *handlers.DashboardHandler,
+	wah *handlers.WebAppsHandler,
 	ush *handlers.UsersHandler,
 ) *server {
 	return &server{
 		settings:         stg,
 		errorsHandler:    erh,
 		dashboardHandler: dsh,
+		webAppsHandler:   wah,
 		usersHandler:     ush,
 	}
 }
@@ -52,6 +55,7 @@ func (s *server) routes(rtr *http.ServeMux, ebd bool) {
 		rtr.HandleFunc("/sign-up", s.usersHandler.SignUp)
 	}
 
+	rtr.HandleFunc("/web-apps/add", s.webAppsHandler.AddWebApp)
 	rtr.HandleFunc("/{$}", s.dashboardHandler.Dashboard)
 	rtr.HandleFunc("/", s.errorsHandler.NotFoundError)
 }
