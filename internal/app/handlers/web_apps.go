@@ -54,3 +54,16 @@ func (h *WebAppsHandler) AddWebApp(res http.ResponseWriter, req *http.Request) {
 	template := views.AddWebApp(user, form)
 	helpers.RenderPage(template, res, req)
 }
+
+func (h *WebAppsHandler) GetWebApps(res http.ResponseWriter, req *http.Request) {
+	user := helpers.AuthPrincipal(req)
+	page, err := cmd.NewGetWebAppsCmd(h.webAppsStore).Execute(req.URL.Query(), user)
+
+	if err != nil {
+		helpers.InternalServerError(err, res, req)
+		return
+	}
+
+	template := components.WebAppsList(page)
+	helpers.Render(template, res, req)
+}

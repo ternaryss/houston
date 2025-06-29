@@ -1,0 +1,16 @@
+package components
+
+import "github.com/ternaryss/houston/internal/app/types"
+
+templ WebAppCard(app *types.WebApp) {
+	<div class="card">
+		<div class="card-body">
+			<h5 class="card-title mb-0">{ app.Name }</h5>
+			<div class="text-base-content/50 mb-6">{ app.Url }</div>
+			<div class="card-actions">
+				<!-- TODO: redirect to details -->
+				<a class="btn btn-outline btn-primary" href="#">Open <span class="icon-[tabler--arrow-big-right]"></span></a>
+			</div>
+		</div>
+	</div>
+}

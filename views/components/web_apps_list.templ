@@ -1,0 +1,43 @@
+package components
+
+import (
+	"fmt"
+	"github.com/ternaryss/houston/internal/app/types"
+)
+
+templ WebAppsList(pag types.Page) {
+	if len(pag.Content) != 0 {
+		<div id="webAppsList">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
+				for _, app := range pag.Content {
+					@WebAppCard(app.(*types.WebApp))
+				}
+			</div>
+			<nav class="flex items-center justify-center gap-x-1 mt-4 px-4">
+				if pag.Current == 1 {
+					<button type="button" class="btn btn-text btn-square btn-disabled">
+						<span class="icon-[tabler--chevron-left] size-5 rtl:rotate-180"></span>
+					</button>
+				} else {
+					<button type="button" hx-get={ fmt.Sprintf("/web-apps?page=%d&size=%d", pag.Current-1, pag.Size) } hx-trigger="click" hx-target="#webAppsList" hx-swap="outerHTML" class="btn btn-text btn-square">
+						<span class="icon-[tabler--chevron-left] size-5 rtl:rotate-180"></span>
+					</button>
+				}
+				<div class="flex items-center gap-x-1">
+					<button type="button" class="btn btn-text btn-square pointer-events-none">{ pag.Current }</button>
+					<span class="text-base-content/80 mx-3">of</span>
+					<button type="button" class="btn btn-text btn-square pointer-events-none">{ pag.All }</button>
+				</div>
+				if pag.Current == pag.All {
+					<button type="button" class="btn btn-text btn-square btn-disabled">
+						<span class="icon-[tabler--chevron-right] size-5 rtl:rotate-180"></span>
+					</button>
+				} else {
+					<button type="button" hx-get={ fmt.Sprintf("/web-apps?page=%d&size=%d", pag.Current+1, pag.Size) } hx-trigger="click" hx-target="#webAppsList" hx-swap="outerHTML" class="btn btn-text btn-square">
+						<span class="icon-[tabler--chevron-right] size-5 rtl:rotate-180"></span>
+					</button>
+				}
+			</nav>
+		</div>
+	}
+}

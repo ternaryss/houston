@@ -24,5 +24,7 @@ type UsersStore interface {
 
 type WebAppsStore interface {
 	dbStore
+	CountByFilter(ftr Filter) (int, error)
+	GetByFilter(ftr Filter, pag Pagination) ([]*WebApp, error)
 	Insert(wap *WebApp) (*WebApp, error)
 }

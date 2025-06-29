@@ -30,6 +30,14 @@ func (s *inMemWebAppsStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
+func (s *inMemWebAppsStore) CountByFilter(ftr types.Filter) (int, error) {
+	return -1, nil
+}
+
+func (s *inMemWebAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.WebApp, error) {
+	return []*types.WebApp{}, nil
+}
+
 func (s *inMemWebAppsStore) GetById(id string) (*types.WebApp, error) {
 	app, exists := s.data[id]
 
