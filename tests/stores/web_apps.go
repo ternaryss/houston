@@ -3,6 +3,7 @@ package stores
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/ternaryss/houston/internal/app/types"
@@ -38,10 +39,10 @@ func (s *inMemWebAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) 
 	return []*types.WebApp{}, nil
 }
 
-func (s *inMemWebAppsStore) GetById(id string) (*types.WebApp, error) {
+func (s *inMemWebAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, error) {
 	app, exists := s.data[id]
 
-	if !exists {
+	if !exists || !strings.EqualFold(app.UserEmail, usr) {
 		return nil, sql.ErrNoRows
 	}
 

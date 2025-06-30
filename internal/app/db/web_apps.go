@@ -93,6 +93,30 @@ func (s *webAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*t
 	return collection, nil
 }
 
+func (s *webAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, error) {
+	var app types.WebApp
+	var createdAt int64
+	var modifiedAt int64
+	query := `SELECT ID, NAME, URL, USER_EMAIL, CREATED_AT, MODIFIED_AT FROM WEB_APPS
+		WHERE ID = $1 AND LOWER(USER_EMAIL) = LOWER($2)`
+
+	if err := s.db.QueryRow(query, id, usr).Scan(
+		&app.Id,
+		&app.Name,
+		&app.Url,
+		&app.UserEmail,
+		&createdAt,
+		&modifiedAt,
+	); err != nil {
+		return nil, err
+	}
+
+	app.CreatedAt = time.Unix(createdAt, 0).UTC()
+	app.ModifiedAt = time.Unix(modifiedAt, 0).UTC()
+
+	return &app, nil
+}
+
 func (s *webAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
 	var id string
 	query := `INSERT INTO WEB_APPS (ID, NAME, URL, USER_EMAIL, CREATED_AT, MODIFIED_AT) VALUES ($1, $2, $3, $4, $5, $6) RETURNING ID`

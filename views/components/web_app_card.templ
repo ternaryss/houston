@@ -1,6 +1,7 @@
 package components
 
 import "github.com/ternaryss/houston/internal/app/types"
+import "fmt"
 
 templ WebAppCard(app *types.WebApp) {
 	<div class="card">
@@ -8,8 +9,7 @@ templ WebAppCard(app *types.WebApp) {
 			<h5 class="card-title mb-0">{ app.Name }</h5>
 			<div class="text-base-content/50 mb-6">{ app.Url }</div>
 			<div class="card-actions">
-				<!-- TODO: redirect to details -->
-				<a class="btn btn-outline btn-primary" href="#">Open <span class="icon-[tabler--arrow-big-right]"></span></a>
+				<a class="btn btn-outline btn-primary" href={ fmt.Sprintf("/web-apps/%s", app.Id) }>Open <span class="icon-[tabler--arrow-big-right]"></span></a>
 			</div>
 		</div>
 	</div>

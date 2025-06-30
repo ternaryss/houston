@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/ternaryss/houston/internal/app/handlers/cmd"
@@ -51,7 +52,7 @@ func (h *WebAppsHandler) AddWebApp(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	template := views.AddWebApp(user, form)
+	template := views.WebApp(form, nil, user, types.AddMode)
 	helpers.RenderPage(template, res, req)
 }
 
@@ -66,4 +67,23 @@ func (h *WebAppsHandler) GetWebApps(res http.ResponseWriter, req *http.Request) 
 
 	template := components.WebAppsList(page)
 	helpers.Render(template, res, req)
+}
+
+func (h *WebAppsHandler) GetWebApp(res http.ResponseWriter, req *http.Request) {
+	user := helpers.AuthPrincipal(req)
+	id := req.PathValue("id")
+	app, err := cmd.NewGetWebAppCmd(h.webAppsStore).Execute(id, user)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			helpers.NotFoundError(res, req)
+			return
+		}
+
+		helpers.InternalServerError(err, res, req)
+		return
+	}
+
+	template := views.WebApp(types.WebAppForm{}, app, user, types.ReadMode)
+	helpers.RenderPage(template, res, req)
 }

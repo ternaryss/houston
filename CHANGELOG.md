@@ -4,7 +4,8 @@ History of **Houston we have (no) problem** application with changes description
 
 ## Next release
 
-- `FEATURE` Get web applications
+- `FEATURE` Single web application details
+- `FEATURE` List web applications
 - `FEATURE` Add web application
 - `FEATURE` GoLang v1.24.3
 

@@ -161,7 +161,7 @@ func TestAddWebAppSuccess(tst *testing.T) {
 	}
 
 	// Then
-	app, err := webAppsStore.GetById(id)
+	app, err := webAppsStore.GetByIdAndUserEmail(id, user)
 
 	if err != nil {
 		tst.Errorf("Reading web app data failed: %s", err)
