@@ -35,6 +35,18 @@ func (s *inMemWebAppsStore) CountByFilter(ftr types.Filter) (int, error) {
 	return -1, nil
 }
 
+func (s *inMemWebAppsStore) DeleteByIdAndUserEmail(id, usr string) error {
+	app, exists := s.data[id]
+
+	if !exists || !strings.EqualFold(app.UserEmail, usr) {
+		return nil
+	}
+
+	delete(s.data, app.Id)
+
+	return nil
+}
+
 func (s *inMemWebAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.WebApp, error) {
 	return []*types.WebApp{}, nil
 }

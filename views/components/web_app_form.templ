@@ -3,7 +3,7 @@ package components
 import "github.com/ternaryss/houston/internal/app/types"
 
 templ WebAppForm(frm types.WebAppForm) {
-	<form id="webAppForm" hx-post="/web-apps/add" hx-target="#webAppForm" hx-swap="outerHTML" class="mx-auto container">
+	<form id="webAppForm" hx-post="/web-apps" hx-target="#webAppForm" hx-swap="outerHTML" class="mx-auto container">
 		<div class="flex items-center justify-between px-4">
 			<h3 class="text-base-content text-2xl truncate max-w-full">Add application</h3>
 			<div class="flex gap-2 shrink-0">

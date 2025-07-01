@@ -56,6 +56,16 @@ func (s *webAppsStore) CountByFilter(ftr types.Filter) (int, error) {
 	return quantity, nil
 }
 
+func (s *webAppsStore) DeleteByIdAndUserEmail(id, usr string) error {
+	query := `DELETE FROM WEB_APPS WHERE ID = $1 AND LOWER(USER_EMAIL) = LOWER($2)`
+
+	if _, err := s.db.Exec(query, id, usr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *webAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.WebApp, error) {
 	query := fmt.Sprintf(`SELECT ID, NAME, URL, USER_EMAIL USEREMAIL, CREATED_AT CREATEDAT, MODIFIED_AT FROM WEB_APPS
 		WHERE LOWER(USER_EMAIL) = LOWER($1)

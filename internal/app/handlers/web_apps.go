@@ -87,3 +87,20 @@ func (h *WebAppsHandler) GetWebApp(res http.ResponseWriter, req *http.Request) {
 	template := views.WebApp(types.WebAppForm{}, app, user, types.ReadMode)
 	helpers.RenderPage(template, res, req)
 }
+
+func (h *WebAppsHandler) DeleteWebApp(res http.ResponseWriter, req *http.Request) {
+	user := helpers.AuthPrincipal(req)
+	id := req.PathValue("id")
+
+	if err := cmd.NewDeleteWebAppCmd(h.webAppsStore).Execute(id, user); err != nil {
+		if err == sql.ErrNoRows {
+			helpers.NotFoundError(res, req)
+			return
+		}
+
+		helpers.InternalServerError(err, res, req)
+		return
+	}
+
+	helpers.Redirect("/", res, req)
+}

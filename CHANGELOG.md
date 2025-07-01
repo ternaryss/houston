@@ -4,6 +4,7 @@ History of **Houston we have (no) problem** application with changes description
 
 ## Next release
 
+- `FEATURE` Delete web application
 - `FEATURE` Single web application details
 - `FEATURE` List web applications
 - `FEATURE` Add web application
