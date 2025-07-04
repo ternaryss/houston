@@ -1,4 +1,4 @@
-FROM golang:1.23.4-alpine AS build-stage
+FROM golang:1.24.3-alpine AS build-stage
 RUN apk add --no-cache gcc musl-dev
 WORKDIR /build
 COPY go.mod go.sum ./
@@ -15,7 +15,7 @@ COPY package.json tailwind.config.js ./
 RUN npm install
 RUN npx tailwindcss -i ./views/tailwind.css -o ./styles.css
 
-FROM golang:1.23.4-alpine AS image-stage
+FROM golang:1.24.3-alpine AS image-stage
 RUN apk add --no-cache tzdata
 ENV TZ=Europe/Warsaw
 WORKDIR /app

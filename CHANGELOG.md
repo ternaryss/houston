@@ -2,6 +2,15 @@
 
 History of **Houston we have (no) problem** application with changes description.
 
+## 0.2.0 (04.07.2025 - unpublished)
+
+- `FEATURE` Edit web application
+- `FEATURE` Delete web application
+- `FEATURE` Single web application details
+- `FEATURE` List web applications
+- `FEATURE` Add web application
+- `FEATURE` GoLang v1.24.3
+
 ## 0.1.0 (23.06.2025 - unpublished)
 
 - `FEATURE` Smaller Docker image size

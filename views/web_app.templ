@@ -1,0 +1,19 @@
+package views
+
+import "github.com/ternaryss/houston/views/components"
+import "github.com/ternaryss/houston/internal/app/types"
+
+templ WebApp(frm types.WebAppForm, app *types.WebApp, usr, mod string) {
+	<div class="flex flex-col min-h-screen">
+		@components.Navigation(usr)
+		<main class="flex-grow px-6 py-4">
+			switch mod {
+				case types.AddMode, types.EditMode:
+					@components.WebAppForm(frm, mod)
+				case types.ReadMode:
+					@components.WebAppReadonlyForm(app)
+			}
+		</main>
+		@components.Footer()
+	</div>
+}

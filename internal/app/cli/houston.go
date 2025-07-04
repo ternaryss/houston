@@ -25,10 +25,12 @@ var rootCmd = &cobra.Command{
 		defer dbProvider.CloseConnection()
 		dbProvider.MigrateDatabase()
 		usersStore := db.NewUsersStore(dbProvider.Db())
+		webAppsStore := db.NewWebAppsStore(dbProvider.Db())
 		errorsHandler := handlers.NewErrorsHandler()
-		dashboardHandler := handlers.NewDashboardHandler()
+		dashboardHandler := handlers.NewDashboardHandler(webAppsStore)
+		webAppsHandler := handlers.NewWebAppsHandler(webAppsStore)
 		usersHandler := handlers.NewUsersHandler(settings, usersStore)
-		server := web.NewServer(settings, errorsHandler, dashboardHandler, usersHandler)
+		server := web.NewServer(settings, errorsHandler, dashboardHandler, webAppsHandler, usersHandler)
 		server.Run()
 	},
 }

@@ -1,10 +1,11 @@
 module github.com/ternaryss/houston
 
-go 1.23.4
+go 1.24.3
 
 require (
-	github.com/a-h/templ v0.3.833
+	github.com/a-h/templ v0.3.898
 	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/google/uuid v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/pressly/goose/v3 v3.24.3
 	github.com/spf13/cobra v1.9.1

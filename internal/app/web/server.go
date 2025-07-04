@@ -13,6 +13,7 @@ type server struct {
 	settings         settings.Settings
 	errorsHandler    *handlers.ErrorsHandler
 	dashboardHandler *handlers.DashboardHandler
+	webAppsHandler   *handlers.WebAppsHandler
 	usersHandler     *handlers.UsersHandler
 }
 
@@ -20,12 +21,14 @@ func NewServer(
 	stg settings.Settings,
 	erh *handlers.ErrorsHandler,
 	dsh *handlers.DashboardHandler,
+	wah *handlers.WebAppsHandler,
 	ush *handlers.UsersHandler,
 ) *server {
 	return &server{
 		settings:         stg,
 		errorsHandler:    erh,
 		dashboardHandler: dsh,
+		webAppsHandler:   wah,
 		usersHandler:     ush,
 	}
 }
@@ -45,14 +48,23 @@ func (s *server) staticFiles(rtr *http.ServeMux) {
 func (s *server) routes(rtr *http.ServeMux, ebd bool) {
 	rtr.HandleFunc("/not-found", s.errorsHandler.NotFoundError)
 	rtr.HandleFunc("/error", s.errorsHandler.InternalServerError)
-	rtr.HandleFunc("/sign-in", s.usersHandler.SignIn)
+	rtr.HandleFunc("GET /sign-in", s.usersHandler.SignIn)
+	rtr.HandleFunc("POST /sign-in", s.usersHandler.SignIn)
 	rtr.HandleFunc("POST /sign-out", s.usersHandler.SignOut)
 
 	if ebd {
-		rtr.HandleFunc("/sign-up", s.usersHandler.SignUp)
+		rtr.HandleFunc("GET /sign-up", s.usersHandler.SignUp)
+		rtr.HandleFunc("POST /sign-up", s.usersHandler.SignUp)
 	}
 
-	rtr.HandleFunc("/{$}", s.dashboardHandler.Dashboard)
+	rtr.HandleFunc("GET /web-apps", s.webAppsHandler.GetWebApps)
+	rtr.HandleFunc("GET /web-apps/add", s.webAppsHandler.AddWebApp)
+	rtr.HandleFunc("POST /web-apps", s.webAppsHandler.AddWebApp)
+	rtr.HandleFunc("GET /web-apps/{id}", s.webAppsHandler.GetWebApp)
+	rtr.HandleFunc("GET /web-apps/{id}/edit", s.webAppsHandler.EditWebApp)
+	rtr.HandleFunc("PUT /web-apps/{id}", s.webAppsHandler.EditWebApp)
+	rtr.HandleFunc("DELETE /web-apps/{id}", s.webAppsHandler.DeleteWebApp)
+	rtr.HandleFunc("GET /{$}", s.dashboardHandler.Dashboard)
 	rtr.HandleFunc("/", s.errorsHandler.NotFoundError)
 }
 
