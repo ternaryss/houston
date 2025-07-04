@@ -2,7 +2,7 @@
 
 History of **Houston we have (no) problem** application with changes description.
 
-## Next release
+## 0.2.0 (04.07.2025 - unpublished)
 
 - `FEATURE` Edit web application
 - `FEATURE` Delete web application
