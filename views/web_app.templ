@@ -8,8 +8,8 @@ templ WebApp(frm types.WebAppForm, app *types.WebApp, usr, mod string) {
 		@components.Navigation(usr)
 		<main class="flex-grow px-6 py-4">
 			switch mod {
-				case types.AddMode:
-					@components.WebAppForm(frm)
+				case types.AddMode, types.EditMode:
+					@components.WebAppForm(frm, mod)
 				case types.ReadMode:
 					@components.WebAppReadonlyForm(app)
 			}

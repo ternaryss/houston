@@ -133,7 +133,7 @@ func TestAddWebAppInvalidUrl(tst *testing.T) {
 	}
 }
 
-func TestAddWebAppSuccess(tst *testing.T) {
+func TestSuccessAddWebApp(tst *testing.T) {
 	// Given
 	user := "test@test.pl"
 	webAppsStore := stores.NewInMemWebAppsStore()

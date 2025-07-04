@@ -146,3 +146,21 @@ func (s *webAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
 	wap.Id = id
 	return wap, nil
 }
+
+func (s *webAppsStore) Update(wap *types.WebApp) (*types.WebApp, error) {
+	query := `UPDATE WEB_APPS SET NAME = $1, URL = $2, USER_EMAIL = $3, MODIFIED_AT = $4
+		WHERE ID = $5 AND USER_EMAIL = $3`
+
+	if _, err := s.db.Exec(
+		query,
+		wap.Name,
+		wap.Url,
+		wap.UserEmail,
+		time.Now().UTC().Unix(),
+		wap.Id,
+	); err != nil {
+		return nil, err
+	}
+
+	return wap, nil
+}

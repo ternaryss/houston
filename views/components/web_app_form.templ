@@ -1,15 +1,34 @@
 package components
 
 import "github.com/ternaryss/houston/internal/app/types"
+import "fmt"
 
-templ WebAppForm(frm types.WebAppForm) {
-	<form id="webAppForm" hx-post="/web-apps" hx-target="#webAppForm" hx-swap="outerHTML" class="mx-auto container">
+func action(id, mod string) string {
+	if mod == types.EditMode {
+		return fmt.Sprintf(`hx-put=/web-apps/%s`, id)
+	}
+
+	return `hx-post=/web-apps`
+}
+
+templ WebAppForm(frm types.WebAppForm, mod string) {
+	<form id="webAppForm" { action(frm.Id, mod) } hx-target="#webAppForm" hx-swap="outerHTML" class="mx-auto container">
 		<div class="flex items-center justify-between px-4">
-			<h3 class="text-base-content text-2xl truncate max-w-full">Add application</h3>
+			if mod == types.EditMode {
+				<h3 class="text-base-content text-2xl truncate max-w-full">Edit application</h3>
+			} else {
+				<h3 class="text-base-content text-2xl truncate max-w-full">Add application</h3>
+			}
 			<div class="flex gap-2 shrink-0">
-				<a href="/" class="btn btn-square btn-secondary">
-					<span class="icon-[tabler--x]"></span>
-				</a>
+				if mod == types.EditMode {
+					<a href={ fmt.Sprintf("/web-apps/%s", frm.Id) } class="btn btn-square btn-secondary">
+						<span class="icon-[tabler--x]"></span>
+					</a>
+				} else {
+					<a href="/" class="btn btn-square btn-secondary">
+						<span class="icon-[tabler--x]"></span>
+					</a>
+				}
 				<button type="submit" class="btn btn-square btn-primary">
 					<span class="icon-[tabler--device-floppy]"></span>
 				</button>

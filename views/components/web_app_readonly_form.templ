@@ -14,10 +14,9 @@ templ WebAppReadonlyForm(app *types.WebApp) {
 				<button type="button" hx-delete={ fmt.Sprintf("/web-apps/%s", app.Id) } hx-trigger="click" hx-include="none" class="btn btn-square btn-error">
 					<span class="icon-[tabler--trash]"></span>
 				</button>
-				<!-- TODO: redirect to edit -->
-				<button type="submit" class="btn btn-square btn-primary">
+				<a href={ fmt.Sprintf("/web-apps/%s/edit", app.Id) } class="btn btn-square btn-primary">
 					<span class="icon-[tabler--pencil]"></span>
-				</button>
+				</a>
 			</div>
 		</div>
 		<hr class="my-4"/>

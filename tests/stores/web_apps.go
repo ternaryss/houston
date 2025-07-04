@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/ternaryss/houston/internal/app/types"
@@ -72,4 +73,19 @@ func (s *inMemWebAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
 	s.data[id] = wap
 
 	return wap, nil
+}
+
+func (s *inMemWebAppsStore) Update(wap *types.WebApp) (*types.WebApp, error) {
+	app, exists := s.data[wap.Id]
+
+	if !exists || !strings.EqualFold(app.UserEmail, wap.UserEmail) {
+		return wap, nil
+	}
+
+	app.Name = wap.Name
+	app.Url = wap.Url
+	app.UserEmail = wap.UserEmail
+	app.ModifiedAt = time.Now().UTC()
+
+	return app, nil
 }

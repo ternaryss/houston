@@ -92,6 +92,7 @@ func (f SignUpFrom) Validate() {
 }
 
 type WebAppForm struct {
+	Id     string
 	Name   string
 	Url    string
 	Errors map[string]FieldError
