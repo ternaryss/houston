@@ -1,0 +1,63 @@
+package components
+
+import "github.com/ternaryss/houston/internal/app/types"
+import "fmt"
+
+templ NotifyForm(frm types.WebAppForm) {
+	<div class="flex items-center justify-between px-4">
+		<h5 class="text-base-content text-lg">Notify</h5>
+		<div class="flex gap-2 shrink-0">
+			<button type="button" class="btn btn-square btn-primary" onclick="addEmailField()">
+				<span class="icon-[tabler--plus]"></span>
+			</button>
+		</div>
+	</div>
+	<hr class="my-4"/>
+	<div id="notifyForm" class="flex flex-col gap-4 px-4">
+		for i, email := range frm.Notify {
+			<div class="notify-email flex flex-col gap-1 w-full">
+				<div class="flex gap-2 items-start">
+					<div class="input-group w-full">
+						<div class="relative w-full">
+							<input name="notify[]" type="email" placeholder="Address e-mail" value={ email } class={ fmt.Sprintf("input input-floating peer %s", errorClass(fmt.Sprintf("email%d", i), frm.Errors)) } required/>
+							<label class="input-floating-label">Address e-mail</label>
+						</div>
+						<span class="input-group-text">
+							<span class="icon-[tabler--mail-up] text-base-content/80 size-5"></span>
+						</span>
+					</div>
+					<button type="button" class="btn btn-square btn-error" onclick="this.closest('.notify-email').remove()">
+						<span class="icon-[tabler--trash]"></span>
+					</button>
+				</div>
+				if isFieldInvalid(fmt.Sprintf("email%d", i), frm.Errors) {
+					@FieldError(frm.Errors[fmt.Sprintf("email%d", i)])
+				}
+			</div>
+		}
+	</div>
+	<script>
+		function addEmailField() {
+			const form = document.getElementById("notifyForm");
+			const field = `
+				<div class="notify-email flex flex-col gap-1 w-full">
+					<div class="flex gap-2 items-start">
+						<div class="input-group w-full">
+							<div class="relative w-full">
+								<input name="notify[]" type="email" placeholder="Address e-mail" value="" class="input input-floating peer" required/>
+								<label class="input-floating-label">Address e-mail</label>
+							</div>
+							<span class="input-group-text">
+								<span class="icon-[tabler--mail-up] text-base-content/80 size-5"></span>
+							</span>
+						</div>
+						<button type="button" class="btn btn-square btn-error" onclick="this.closest('.notify-email').remove()">
+							<span class="icon-[tabler--trash]"></span>
+						</button>
+					</div>
+				</div>
+			`
+			form.insertAdjacentHTML('beforeend', field);
+		}
+	</script>
+}

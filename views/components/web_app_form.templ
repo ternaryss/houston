@@ -1,7 +1,9 @@
 package components
 
-import "github.com/ternaryss/houston/internal/app/types"
-import "fmt"
+import (
+	"fmt"
+	"github.com/ternaryss/houston/internal/app/types"
+)
 
 func action(id, mod string) string {
 	if mod == types.EditMode {
@@ -39,42 +41,67 @@ templ WebAppForm(frm types.WebAppForm, mod string) {
 			<div class="col-span-2">
 				<div class="input-group w-full">
 					<div class="relative w-full">
-						if _, invalid := frm.Errors["name"]; invalid {
-							<input id="name" name="name" type="text" placeholder="Name" value={ frm.Name } class="input input-floating peer is-invalid" required/>
-						} else {
-							<input id="name" name="name" type="text" placeholder="Name" value={ frm.Name } class="input input-floating peer" required/>
-						}
+						<input id="name" name="name" type="text" placeholder="Name" value={ frm.Name } class={ fmt.Sprintf("input input-floating peer %s", errorClass("name", frm.Errors)) } required/>
 						<label for="name" class="input-floating-label">Name</label>
 					</div>
 					<span class="input-group-text">
 						<span class="icon-[tabler--letter-a] text-base-content/80 size-5"></span>
 					</span>
 				</div>
-				if err, invalid := frm.Errors["name"]; invalid {
-					<span class="label">
-						<span class="label-text-alt">{ err.Msg }</span>
-					</span>
+				if isFieldInvalid("name", frm.Errors) {
+					@FieldError(frm.Errors["name"])
 				}
 			</div>
 			<div class="col-span-2">
 				<div class="input-group w-full">
 					<div class="relative w-full">
-						if _, invalid := frm.Errors["url"]; invalid {
-							<input id="url" name="url" type="text" placeholder="URL" value={ frm.Url } class="input input-floating peer is-invalid" required/>
-						} else {
-							<input id="url" name="url" type="text" placeholder="URL" value={ frm.Url } class="input input-floating peer" required/>
-						}
+						<input id="url" name="url" type="text" placeholder="URL" value={ frm.Url } class={ fmt.Sprintf("input input-floating peer %s", errorClass("url", frm.Errors)) } required/>
 						<label for="url" class="input-floating-label">URL</label>
 					</div>
 					<span class="input-group-text">
 						<span class="icon-[tabler--planet] text-base-content/80 size-5"></span>
 					</span>
 				</div>
-				if err, invalid := frm.Errors["url"]; invalid {
-					<span class="label">
-						<span class="label-text-alt">{ err.Msg }</span>
-					</span>
+				if isFieldInvalid("url", frm.Errors) {
+					@FieldError(frm.Errors["url"])
 				}
+			</div>
+			<div class="col-span-2 md:col-span-1">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						<input id="status" name="status" type="text" placeholder="Status HTTP" value={ frm.Status } class={ fmt.Sprintf("input input-floating peer %s", errorClass("status", frm.Errors)) } required/>
+						<label for="status" class="input-floating-label">Status HTTP</label>
+					</div>
+					<span class="input-group-text">
+						<span class="icon-[tabler--activity-heartbeat] text-base-content/80 size-5"></span>
+					</span>
+				</div>
+				if isFieldInvalid("status", frm.Errors) {
+					@FieldError(frm.Errors["status"])
+				}
+			</div>
+			<div class="col-span-2 md:col-span-1">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						<select id="interval" name="interval" class={ fmt.Sprintf("select select-floating %s", errorClass("interval", frm.Errors)) }>
+							<option disabled selected>Select...</option>
+							for _, i := range types.Intervals {
+								if i == frm.Interval {
+									<option selected>{ i }</option>
+								} else {
+									<option>{ i }</option>
+								}
+							}
+						</select>
+						<label for="interval" class="select-floating-label">Interval</label>
+					</div>
+				</div>
+				if isFieldInvalid("interval", frm.Errors) {
+					@FieldError(frm.Errors["interval"])
+				}
+			</div>
+			<div class="col-span-2">
+				@NotifyForm(frm)
 			</div>
 		</div>
 	</form>

@@ -15,7 +15,8 @@ func TestDeleteWebAppNoId(tst *testing.T) {
 	id := ""
 	user := "test@test.pl"
 	webAppsStore := stores.NewInMemWebAppsStore()
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore)
+	subscribersStore := stores.NewInMemSubscribersStore()
+	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore)
 
 	// When
 	err := cmd.Execute(id, user)
@@ -31,7 +32,8 @@ func TestDeleteWebAppNotFound(tst *testing.T) {
 	id := uuid.New().String()
 	user := "test@test.pl"
 	webAppsStore := stores.NewInMemWebAppsStore()
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore)
+	subscribersStore := stores.NewInMemSubscribersStore()
+	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore)
 
 	// When
 	err := cmd.Execute(id, user)
@@ -45,10 +47,13 @@ func TestDeleteWebAppNotFound(tst *testing.T) {
 func TestSuccessDeleteWebApp(tst *testing.T) {
 	// Given
 	user := "test@test.pl"
-	app := types.NewWebApp("Google", "https://google.com", user)
+	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
-	webAppsStore.Insert(app)
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore)
+	subscribersStore := stores.NewInMemSubscribersStore()
+	app, _ = webAppsStore.Insert(app)
+	subscriber := types.NewSubscriber(app.Id, user)
+	subscribersStore.Insert(subscriber)
+	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore)
 
 	// When
 	err := cmd.Execute(app.Id, user)
@@ -60,5 +65,15 @@ func TestSuccessDeleteWebApp(tst *testing.T) {
 
 	if _, err := webAppsStore.GetByIdAndUserEmail(app.Id, user); err != sql.ErrNoRows {
 		tst.Errorf("Ended with invalid error: %s", err)
+	}
+
+	subscribers, err := subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id)
+
+	if err != nil {
+		tst.Errorf("Fetching subscribers failed: %s", err)
+	}
+
+	if len(subscribers) != 0 {
+		tst.Errorf("Subscribers not deleted")
 	}
 }

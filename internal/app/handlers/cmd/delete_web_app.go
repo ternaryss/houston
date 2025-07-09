@@ -8,12 +8,14 @@ import (
 )
 
 type deleteWebAppCmd struct {
-	webAppsStore types.WebAppsStore
+	webAppsStore     types.WebAppsStore
+	subscribersStore types.SubscribersStore
 }
 
-func NewDeleteWebAppCmd(was types.WebAppsStore) *deleteWebAppCmd {
+func NewDeleteWebAppCmd(was types.WebAppsStore, sus types.SubscribersStore) *deleteWebAppCmd {
 	return &deleteWebAppCmd{
-		webAppsStore: was,
+		webAppsStore:     was,
+		subscribersStore: sus,
 	}
 }
 
@@ -30,7 +32,23 @@ func (c *deleteWebAppCmd) Execute(id, usr string) error {
 		return err
 	}
 
+	tx, err := c.webAppsStore.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	if err := c.subscribersStore.DeleteByWebAppId(app.Id); err != nil {
+		c.webAppsStore.Rollback(tx)
+		return err
+	}
+
 	if err := c.webAppsStore.DeleteByIdAndUserEmail(app.Id, app.UserEmail); err != nil {
+		c.webAppsStore.Rollback(tx)
+		return err
+	}
+
+	if err := c.webAppsStore.Commit(tx); err != nil {
 		return err
 	}
 

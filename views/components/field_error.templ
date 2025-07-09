@@ -1,0 +1,25 @@
+package components
+
+import "github.com/ternaryss/houston/internal/app/types"
+
+func isFieldInvalid(fld string, errors map[string]types.FieldError) bool {
+	if _, invalid := errors[fld]; invalid {
+		return true
+	}
+
+	return false
+}
+
+func errorClass(fld string, errors map[string]types.FieldError) string {
+	if isFieldInvalid(fld, errors) {
+		return "is-invalid"
+	}
+
+	return ""
+}
+
+templ FieldError(err types.FieldError) {
+	<span class="label">
+		<span class="label-text-alt">{ err.Msg }</span>
+	</span>
+}

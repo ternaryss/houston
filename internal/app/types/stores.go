@@ -31,3 +31,10 @@ type WebAppsStore interface {
 	Insert(wap *WebApp) (*WebApp, error)
 	Update(wap *WebApp) (*WebApp, error)
 }
+
+type SubscribersStore interface {
+	dbStore
+	DeleteByWebAppId(wid string) error
+	GetByWebAppIdOrderByEmailAsc(wid string) ([]*Subscriber, error)
+	Insert(sub *Subscriber) (*Subscriber, error)
+}

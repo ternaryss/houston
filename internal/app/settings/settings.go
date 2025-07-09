@@ -33,6 +33,7 @@ type signUp struct {
 type authorization struct {
 	Secret       string `yaml:"secret"`
 	ExpiresAfter int    `yaml:"expires-after"`
+	OverHttps    bool   `yaml:"over-https"`
 	SignUp       signUp `yaml:"sign-up"`
 }
 
@@ -62,6 +63,7 @@ func defaultSettings() *Settings {
 		Authorization: authorization{
 			Secret:       "",
 			ExpiresAfter: 12,
+			OverHttps:    true,
 			SignUp: signUp{
 				Enabled: true,
 			},

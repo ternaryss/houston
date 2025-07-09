@@ -67,7 +67,8 @@ func (s *webAppsStore) DeleteByIdAndUserEmail(id, usr string) error {
 }
 
 func (s *webAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.WebApp, error) {
-	query := fmt.Sprintf(`SELECT ID, NAME, URL, USER_EMAIL USEREMAIL, CREATED_AT CREATEDAT, MODIFIED_AT FROM WEB_APPS
+	query := fmt.Sprintf(`SELECT ID, NAME, URL, STATUS, INTERVAL, USER_EMAIL USEREMAIL, CREATED_AT CREATEDAT, MODIFIED_AT
+		FROM WEB_APPS
 		WHERE LOWER(USER_EMAIL) = LOWER($1)
 		ORDER BY %s LIMIT $2 OFFSET $3`, ftr.Sort)
 	rows, err := s.db.Query(query, ftr.Params["userEmail"], pag.Limit, pag.Offset)
@@ -88,6 +89,8 @@ func (s *webAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*t
 			&result.Id,
 			&result.Name,
 			&result.Url,
+			&result.Status,
+			&result.Interval,
 			&result.UserEmail,
 			&createdAt,
 			&modifiedAt,
@@ -107,13 +110,15 @@ func (s *webAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, error
 	var app types.WebApp
 	var createdAt int64
 	var modifiedAt int64
-	query := `SELECT ID, NAME, URL, USER_EMAIL, CREATED_AT, MODIFIED_AT FROM WEB_APPS
+	query := `SELECT ID, NAME, URL, STATUS, INTERVAL, USER_EMAIL, CREATED_AT, MODIFIED_AT FROM WEB_APPS
 		WHERE ID = $1 AND LOWER(USER_EMAIL) = LOWER($2)`
 
 	if err := s.db.QueryRow(query, id, usr).Scan(
 		&app.Id,
 		&app.Name,
 		&app.Url,
+		&app.Status,
+		&app.Interval,
 		&app.UserEmail,
 		&createdAt,
 		&modifiedAt,
@@ -129,13 +134,16 @@ func (s *webAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, error
 
 func (s *webAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
 	var id string
-	query := `INSERT INTO WEB_APPS (ID, NAME, URL, USER_EMAIL, CREATED_AT, MODIFIED_AT) VALUES ($1, $2, $3, $4, $5, $6) RETURNING ID`
+	query := `INSERT INTO WEB_APPS (ID, NAME, URL, STATUS, INTERVAL, USER_EMAIL, CREATED_AT, MODIFIED_AT)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ID`
 
 	if err := s.db.QueryRow(
 		query,
 		uuid.New().String(),
 		wap.Name,
 		wap.Url,
+		wap.Status,
+		wap.Interval,
 		wap.UserEmail,
 		wap.CreatedAt.Unix(),
 		wap.ModifiedAt.Unix(),
@@ -148,13 +156,15 @@ func (s *webAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
 }
 
 func (s *webAppsStore) Update(wap *types.WebApp) (*types.WebApp, error) {
-	query := `UPDATE WEB_APPS SET NAME = $1, URL = $2, USER_EMAIL = $3, MODIFIED_AT = $4
-		WHERE ID = $5 AND USER_EMAIL = $3`
+	query := `UPDATE WEB_APPS SET NAME = $1, URL = $2, STATUS = $3, INTERVAL = $3, USER_EMAIL = $4, MODIFIED_AT = $5
+		WHERE ID = $6 AND USER_EMAIL = $4`
 
 	if _, err := s.db.Exec(
 		query,
 		wap.Name,
 		wap.Url,
+		wap.Status,
+		wap.Interval,
 		wap.UserEmail,
 		time.Now().UTC().Unix(),
 		wap.Id,

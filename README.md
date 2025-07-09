@@ -167,6 +167,8 @@ authorization:
   secret: ""
   # JWT token expire after X hours
   expires-after: 12
+  # Use secure cookies (required to work with HTTPS)
+  over-https: true
   # Sign up configuration
   sign-up:
     # Public sign up enabled

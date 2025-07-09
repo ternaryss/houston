@@ -1,10 +1,13 @@
 package types
 
 import (
+	"fmt"
 	"net/http"
 	"net/mail"
 	"net/url"
 	"regexp"
+	"slices"
+	"strconv"
 )
 
 type SignInForm struct {
@@ -14,8 +17,10 @@ type SignInForm struct {
 }
 
 func NewSignInForm(request *http.Request) (SignInForm, error) {
+	errors := make(map[string]FieldError)
+
 	if request == nil {
-		return SignInForm{}, nil
+		return SignInForm{Errors: errors}, nil
 	}
 
 	if err := request.ParseForm(); err != nil {
@@ -25,7 +30,7 @@ func NewSignInForm(request *http.Request) (SignInForm, error) {
 	return SignInForm{
 		Email:    request.FormValue("email"),
 		Password: request.FormValue("password"),
-		Errors:   make(map[string]FieldError),
+		Errors:   errors,
 	}, nil
 }
 
@@ -49,8 +54,10 @@ type SignUpFrom struct {
 }
 
 func NewSignUpForm(request *http.Request) (SignUpFrom, error) {
+	errors := make(map[string]FieldError)
+
 	if request == nil {
-		return SignUpFrom{}, nil
+		return SignUpFrom{Errors: errors}, nil
 	}
 
 	if err := request.ParseForm(); err != nil {
@@ -61,7 +68,7 @@ func NewSignUpForm(request *http.Request) (SignUpFrom, error) {
 		Email:          request.FormValue("email"),
 		Password:       request.FormValue("password"),
 		RepeatPassword: request.FormValue("repeatPassword"),
-		Errors:         make(map[string]FieldError),
+		Errors:         errors,
 	}, nil
 }
 
@@ -92,25 +99,42 @@ func (f SignUpFrom) Validate() {
 }
 
 type WebAppForm struct {
-	Id     string
-	Name   string
-	Url    string
-	Errors map[string]FieldError
+	Id       string
+	Name     string
+	Url      string
+	Status   int
+	Interval string
+	Notify   []string
+	Errors   map[string]FieldError
 }
 
 func NewWebAppForm(request *http.Request) (WebAppForm, error) {
+	errors := make(map[string]FieldError)
+	notify := []string{}
+
 	if request == nil {
-		return WebAppForm{}, nil
+		return WebAppForm{Status: 200, Notify: notify, Errors: errors}, nil
 	}
 
 	if err := request.ParseForm(); err != nil {
 		return WebAppForm{}, err
 	}
 
+	status, err := strconv.Atoi(request.FormValue("status"))
+
+	if err != nil {
+		status = -1
+	}
+
+	notify = append(notify, request.Form["notify[]"]...)
+
 	return WebAppForm{
-		Name:   request.FormValue("name"),
-		Url:    request.FormValue("url"),
-		Errors: make(map[string]FieldError),
+		Name:     request.FormValue("name"),
+		Url:      request.FormValue("url"),
+		Status:   status,
+		Interval: request.FormValue("interval"),
+		Notify:   notify,
+		Errors:   errors,
 	}, nil
 }
 
@@ -124,14 +148,37 @@ func (f WebAppForm) Validate() {
 	} else {
 		url, err := url.ParseRequestURI(f.Url)
 
-		if err != nil {
+		if err != nil || url.Scheme == "" || url.Host == "" {
 			f.Errors["url"] = NewFieldError("url", "Invalid URL")
-			return
 		}
+	}
 
-		if url.Scheme == "" || url.Host == "" {
-			f.Errors["url"] = NewFieldError("url", "Invalid URL")
-			return
+	if f.Status <= 0 || f.Status >= 1000 {
+		f.Errors["status"] = NewFieldError("status", "Invalid HTTP status")
+	}
+
+	if f.Interval == "" {
+		f.Errors["interval"] = NewFieldError("interval", "Interval is required")
+	} else {
+		exists := slices.Contains(Intervals, f.Interval)
+
+		if !exists {
+			f.Errors["interval"] = NewFieldError("interval", "Invalid interval")
+		}
+	}
+
+	if len(f.Notify) > 0 {
+		for i, email := range f.Notify {
+			field := fmt.Sprintf("email%d", i)
+
+			if email == "" {
+				f.Errors[field] = NewFieldError(field, "Address e-mail is required")
+				continue
+			}
+
+			if _, err := mail.ParseAddress(email); err != nil {
+				f.Errors[field] = NewFieldError(field, "Invalid address e-mail")
+			}
 		}
 	}
 }

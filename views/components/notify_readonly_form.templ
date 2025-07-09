@@ -1,0 +1,28 @@
+package components
+
+import "github.com/ternaryss/houston/internal/app/types"
+
+templ NotifyReadonlyForm(sus []*types.Subscriber) {
+	<div class="flex items-center justify-between px-4">
+		<h5 class="text-base-content text-lg">Notify</h5>
+		<div class="flex gap-2 shrink-0"></div>
+	</div>
+	<hr class="my-4"/>
+	<div id="notifyForm" class="flex flex-col gap-4 px-4">
+		for _, subscriber := range sus {
+			<div class="notify-email flex flex-col gap-1 w-full">
+				<div class="flex gap-2 items-start">
+					<div class="input-group w-full">
+						<div class="relative w-full">
+							<input name="notify[]" type="email" placeholder="Address e-mail" value={ subscriber.Email } class="input input-floating peer" readonly/>
+							<label class="input-floating-label">Address e-mail</label>
+						</div>
+						<span class="input-group-text">
+							<span class="icon-[tabler--mail-up] text-base-content/80 size-5"></span>
+						</span>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
