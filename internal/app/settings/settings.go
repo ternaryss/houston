@@ -37,11 +37,17 @@ type authorization struct {
 	SignUp       signUp `yaml:"sign-up"`
 }
 
+type retention struct {
+	Enabled   bool `yaml:"enabled"`
+	OlderThan int  `yaml:"older-than"`
+}
+
 type Settings struct {
 	Logs          logs          `yaml:"logs"`
 	Server        server        `yaml:"server"`
 	Database      database      `yaml:"database"`
 	Authorization authorization `yaml:"authorization"`
+	Retention     retention     `yaml:"retention"`
 }
 
 var loadedSettings *Settings
@@ -67,6 +73,10 @@ func defaultSettings() *Settings {
 			SignUp: signUp{
 				Enabled: true,
 			},
+		},
+		Retention: retention{
+			Enabled:   false,
+			OlderThan: 30,
 		},
 	}
 }

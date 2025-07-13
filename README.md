@@ -173,6 +173,13 @@ authorization:
   sign-up:
     # Public sign up enabled
     enabled: true
+
+# Health checks data retention configuration
+retention:
+  # Retention enabled
+  enabled: false
+  # Delete health checks data older than X days
+  older-than: 30
 ```
 
 ## Tests

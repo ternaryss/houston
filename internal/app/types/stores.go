@@ -1,6 +1,9 @@
 package types
 
-import "database/sql"
+import (
+	"database/sql"
+	"time"
+)
 
 type DbCtx struct {
 	Tx *sql.Tx
@@ -28,6 +31,7 @@ type WebAppsStore interface {
 	DeleteByIdAndUserEmail(id, usr string) error
 	GetByFilter(ftr Filter, pag Pagination) ([]*WebApp, error)
 	GetByIdAndUserEmail(id, usr string) (*WebApp, error)
+	GetByIntervalOrderByNameAsc(itv string) ([]*WebApp, error)
 	Insert(wap *WebApp) (*WebApp, error)
 	Update(wap *WebApp) (*WebApp, error)
 }
@@ -37,4 +41,11 @@ type SubscribersStore interface {
 	DeleteByWebAppId(wid string) error
 	GetByWebAppIdOrderByEmailAsc(wid string) ([]*Subscriber, error)
 	Insert(sub *Subscriber) (*Subscriber, error)
+}
+
+type HealthChecksStore interface {
+	dbStore
+	DeleteByCreatedAtLowerThan(cre time.Time) error
+	GetFirstByWebAppIdOrderByCreatedAtDesc(wid string) (*HealthCheck, error)
+	Insert(hck *HealthCheck) (*HealthCheck, error)
 }

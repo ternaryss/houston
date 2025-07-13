@@ -16,3 +16,7 @@ authorization:
   over-https: false
   sign-up:
     enabled: true
+
+retention:
+  enabled: false
+  older-than: 30

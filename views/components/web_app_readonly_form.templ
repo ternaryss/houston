@@ -131,7 +131,7 @@ templ WebAppReadonlyForm(app *types.WebApp, sus []*types.Subscriber) {
 			}
 
 			if (modifiedAtUtc) {
-				const modifiedAtLocal = new Date(createdAtUtc);
+				const modifiedAtLocal = new Date(modifiedAtUtc);
 				modifiedAt.value = format.format(modifiedAtLocal);
 			}
 		});

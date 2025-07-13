@@ -6,7 +6,15 @@ import "fmt"
 templ WebAppCard(app *types.WebApp) {
 	<div class="card">
 		<div class="card-body">
-			<h5 class="card-title mb-0">{ app.Name }</h5>
+			<div class="flex items-center justify-between mb-0">
+				<h5 class="card-title">{ app.Name }</h5>
+				switch app.Healthy {
+					case types.HealthyOk:
+						<span class="badge badge-success">{ app.Healthy }</span>
+					case types.HealthyErr:
+						<span class="badge badge-error">{ app.Healthy }</span>
+				}
+			</div>
 			<div class="text-base-content/50 mb-6">{ app.Url }</div>
 			<div class="card-actions">
 				<a class="btn btn-outline btn-primary" href={ fmt.Sprintf("/web-apps/%s", app.Id) }>Open <span class="icon-[tabler--arrow-big-right]"></span></a>

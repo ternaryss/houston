@@ -3,6 +3,7 @@ package stores
 import (
 	"database/sql"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -62,6 +63,22 @@ func (s *inMemWebAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, 
 	return app, nil
 }
 
+func (s *inMemWebAppsStore) GetByIntervalOrderByNameAsc(itv string) ([]*types.WebApp, error) {
+	var result []*types.WebApp
+
+	for _, app := range s.data {
+		if app.Interval == itv {
+			result = append(result, app)
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return strings.ToLower(result[i].Name) < strings.ToLower(result[j].Name)
+	})
+
+	return result, nil
+}
+
 func (s *inMemWebAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
 	id := uuid.New().String()
 
@@ -84,7 +101,10 @@ func (s *inMemWebAppsStore) Update(wap *types.WebApp) (*types.WebApp, error) {
 
 	app.Name = wap.Name
 	app.Url = wap.Url
+	app.Status = wap.Status
+	app.Interval = wap.Interval
 	app.UserEmail = wap.UserEmail
+	app.Healthy = wap.Healthy
 	app.ModifiedAt = time.Now().UTC()
 
 	return app, nil

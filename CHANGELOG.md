@@ -4,6 +4,8 @@ History of **Houston we have (no) problem** application with changes description
 
 ## Next release
 
+- `FEATURE` Health checks data retention
+- `FEATURE` Periodic health checks
 - `FEATURE` Periodic health check configuration
 
 ## 0.2.0 (04.07.2025 - unpublished)

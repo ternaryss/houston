@@ -42,6 +42,8 @@ func (c *editWebAppCmd) Execute(frm types.WebAppForm, id, usr string) error {
 
 	app.Name = frm.Name
 	app.Url = frm.Url
+	app.Status = frm.Status
+	app.Interval = frm.Interval
 	app.UserEmail = usr
 
 	tx, err := c.webAppsStore.Begin()
