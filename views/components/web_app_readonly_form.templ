@@ -104,8 +104,13 @@ templ WebAppReadonlyForm(app *types.WebApp, sus []*types.Subscriber) {
 					</span>
 				</div>
 			</div>
+			if len(sus) > 0 {
+				<div class="col-span-2">
+					@NotifyReadonlyForm(sus)
+				</div>
+			}
 			<div class="col-span-2">
-				@NotifyReadonlyForm(sus)
+				<div id="health" hx-get={ fmt.Sprintf("/web-apps/%s/health", app.Id) } hx-trigger="load" hx-target="#health" hx-swap="outerHTML"></div>
 			</div>
 		</form>
 	</div>

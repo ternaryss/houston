@@ -63,5 +63,5 @@ func (c *getWebAppsCmd) Execute(qry url.Values, usr string) (types.Page, error) 
 
 	slog.Info("Web applications fetched", "filter", filter, "pagination", pagination, "contentSize", len(content))
 
-	return types.NewPage(pagination, content), err
+	return types.NewPage(pagination, content), nil
 }

@@ -32,6 +32,10 @@ func (s *inMemHealthChecksStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
+func (s *inMemHealthChecksStore) CountByFilter(ftr types.Filter) (int, error) {
+	return -1, nil
+}
+
 func (s *inMemHealthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time) error {
 	for id, health := range s.data {
 		if health.CreatedAt.Before(cre) || health.CreatedAt.Equal(cre) {
@@ -40,6 +44,32 @@ func (s *inMemHealthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time) error
 	}
 
 	return nil
+}
+
+func (s *inMemHealthChecksStore) DeleteByWebAppId(wid string) error {
+	for id, health := range s.data {
+		if health.WebAppId == wid {
+			delete(s.data, id)
+		}
+	}
+
+	return nil
+}
+
+func (s *inMemHealthChecksStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.HealthCheck, error) {
+	return []*types.HealthCheck{}, nil
+}
+
+func (s *inMemHealthChecksStore) GetByWebAppId(wid string) ([]*types.HealthCheck, error) {
+	var collection []*types.HealthCheck
+
+	for _, health := range s.data {
+		if health.WebAppId == wid {
+			collection = append(collection, health)
+		}
+	}
+
+	return collection, nil
 }
 
 func (s *inMemHealthChecksStore) GetFirstByWebAppIdOrderByCreatedAtDesc(wid string) (*types.HealthCheck, error) {

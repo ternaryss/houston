@@ -16,7 +16,8 @@ func TestDeleteWebAppNoId(tst *testing.T) {
 	user := "test@test.pl"
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore)
+	healthChecksStore := stores.NewInMemHealthChecksStore()
+	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore, healthChecksStore)
 
 	// When
 	err := cmd.Execute(id, user)
@@ -33,7 +34,8 @@ func TestDeleteWebAppNotFound(tst *testing.T) {
 	user := "test@test.pl"
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore)
+	healthChecksStore := stores.NewInMemHealthChecksStore()
+	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore, healthChecksStore)
 
 	// When
 	err := cmd.Execute(id, user)
@@ -50,10 +52,13 @@ func TestSuccessDeleteWebApp(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
+	healthChecksStore := stores.NewInMemHealthChecksStore()
 	app, _ = webAppsStore.Insert(app)
 	subscriber := types.NewSubscriber(app.Id, user)
 	subscribersStore.Insert(subscriber)
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore)
+	health := types.NewHealthCheck(app.Id, 200)
+	healthChecksStore.Insert(health)
+	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore, healthChecksStore)
 
 	// When
 	err := cmd.Execute(app.Id, user)
@@ -75,5 +80,15 @@ func TestSuccessDeleteWebApp(tst *testing.T) {
 
 	if len(subscribers) != 0 {
 		tst.Errorf("Subscribers not deleted")
+	}
+
+	checks, err := healthChecksStore.GetByWebAppId(app.Id)
+
+	if err != nil {
+		tst.Errorf("Fetching health checks failed: %s", err)
+	}
+
+	if len(checks) != 0 {
+		tst.Errorf("Health checks not deleted")
 	}
 }

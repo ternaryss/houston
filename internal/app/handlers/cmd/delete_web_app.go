@@ -8,14 +8,16 @@ import (
 )
 
 type deleteWebAppCmd struct {
-	webAppsStore     types.WebAppsStore
-	subscribersStore types.SubscribersStore
+	webAppsStore      types.WebAppsStore
+	subscribersStore  types.SubscribersStore
+	healthChecksStore types.HealthChecksStore
 }
 
-func NewDeleteWebAppCmd(was types.WebAppsStore, sus types.SubscribersStore) *deleteWebAppCmd {
+func NewDeleteWebAppCmd(was types.WebAppsStore, sus types.SubscribersStore, hcs types.HealthChecksStore) *deleteWebAppCmd {
 	return &deleteWebAppCmd{
-		webAppsStore:     was,
-		subscribersStore: sus,
+		webAppsStore:      was,
+		subscribersStore:  sus,
+		healthChecksStore: hcs,
 	}
 }
 
@@ -35,6 +37,11 @@ func (c *deleteWebAppCmd) Execute(id, usr string) error {
 	tx, err := c.webAppsStore.Begin()
 
 	if err != nil {
+		return err
+	}
+
+	if err := c.healthChecksStore.DeleteByWebAppId(app.Id); err != nil {
+		c.webAppsStore.Rollback(tx)
 		return err
 	}
 

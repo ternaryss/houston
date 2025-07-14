@@ -31,8 +31,8 @@ var rootCmd = &cobra.Command{
 		healthChecksStore := db.NewHealthChecksStore(dbProvider.Db())
 		errorsHandler := handlers.NewErrorsHandler()
 		dashboardHandler := handlers.NewDashboardHandler(webAppsStore)
-		webAppsHandler := handlers.NewWebAppsHandler(webAppsStore, subscribersStore)
-		healthChecksHandler := handlers.NewHealthChecksHandler(settings, webAppsStore, healthChecksStore)
+		webAppsHandler := handlers.NewWebAppsHandler(webAppsStore, subscribersStore, healthChecksStore)
+		healthChecksHandler := handlers.NewHealthChecksHandler(settings, webAppsStore, subscribersStore, healthChecksStore)
 		usersHandler := handlers.NewUsersHandler(settings, usersStore)
 		retentionScheduler := cron.NewRetentionScheduler(settings, healthChecksHandler)
 		fiveMinutesInterval := cron.NewFiveMinutesIntervalScheduler(healthChecksHandler)
@@ -42,7 +42,7 @@ var rootCmd = &cobra.Command{
 		fiveMinutesInterval.Run()
 		fifteenMinutesInterval.Run()
 		oneHourInterval.Run()
-		server := web.NewServer(settings, errorsHandler, dashboardHandler, webAppsHandler, usersHandler)
+		server := web.NewServer(settings, errorsHandler, dashboardHandler, webAppsHandler, healthChecksHandler, usersHandler)
 		server.Run()
 	},
 }

@@ -13,14 +13,16 @@ import (
 )
 
 type WebAppsHandler struct {
-	webAppsStore     types.WebAppsStore
-	subscribersStore types.SubscribersStore
+	webAppsStore      types.WebAppsStore
+	subscribersStore  types.SubscribersStore
+	healthChecksStore types.HealthChecksStore
 }
 
-func NewWebAppsHandler(was types.WebAppsStore, sus types.SubscribersStore) *WebAppsHandler {
+func NewWebAppsHandler(was types.WebAppsStore, sus types.SubscribersStore, hcs types.HealthChecksStore) *WebAppsHandler {
 	return &WebAppsHandler{
-		webAppsStore:     was,
-		subscribersStore: sus,
+		webAppsStore:      was,
+		subscribersStore:  sus,
+		healthChecksStore: hcs,
 	}
 }
 
@@ -160,7 +162,11 @@ func (h *WebAppsHandler) DeleteWebApp(res http.ResponseWriter, req *http.Request
 	user := helpers.AuthPrincipal(req)
 	id := req.PathValue("id")
 
-	if err := cmd.NewDeleteWebAppCmd(h.webAppsStore, h.subscribersStore).Execute(id, user); err != nil {
+	if err := cmd.NewDeleteWebAppCmd(
+		h.webAppsStore,
+		h.subscribersStore,
+		h.healthChecksStore,
+	).Execute(id, user); err != nil {
 		if err == sql.ErrNoRows {
 			helpers.NotFoundError(res, req)
 			return
