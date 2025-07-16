@@ -13,12 +13,16 @@ import (
 )
 
 type WebAppsHandler struct {
-	webAppsStore types.WebAppsStore
+	webAppsStore      types.WebAppsStore
+	subscribersStore  types.SubscribersStore
+	healthChecksStore types.HealthChecksStore
 }
 
-func NewWebAppsHandler(was types.WebAppsStore) *WebAppsHandler {
+func NewWebAppsHandler(was types.WebAppsStore, sus types.SubscribersStore, hcs types.HealthChecksStore) *WebAppsHandler {
 	return &WebAppsHandler{
-		webAppsStore: was,
+		webAppsStore:      was,
+		subscribersStore:  sus,
+		healthChecksStore: hcs,
 	}
 }
 
@@ -39,7 +43,7 @@ func (h *WebAppsHandler) AddWebApp(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		id, err := cmd.NewAddWebAppCmd(h.webAppsStore).Execute(form, user)
+		id, err := cmd.NewAddWebAppCmd(h.webAppsStore, h.subscribersStore).Execute(form, user)
 
 		if err != nil {
 			helpers.InternalServerError(err, res, req)
@@ -55,7 +59,7 @@ func (h *WebAppsHandler) AddWebApp(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	template := views.WebApp(form, nil, user, types.AddMode)
+	template := views.WebApp(form, nil, []*types.Subscriber{}, user, types.AddMode)
 	helpers.RenderPage(template, res, req)
 }
 
@@ -68,14 +72,14 @@ func (h *WebAppsHandler) GetWebApps(res http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	template := components.WebAppsList(page)
+	template := components.WebAppsList(page, user)
 	helpers.Render(template, res, req)
 }
 
 func (h *WebAppsHandler) GetWebApp(res http.ResponseWriter, req *http.Request) {
 	user := helpers.AuthPrincipal(req)
 	id := req.PathValue("id")
-	app, err := cmd.NewGetWebAppCmd(h.webAppsStore).Execute(id, user)
+	app, subscribers, err := cmd.NewGetWebAppCmd(h.webAppsStore, h.subscribersStore).Execute(id, user)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -87,7 +91,7 @@ func (h *WebAppsHandler) GetWebApp(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	template := views.WebApp(types.WebAppForm{}, app, user, types.ReadMode)
+	template := views.WebApp(types.WebAppForm{}, app, subscribers, user, types.ReadMode)
 	helpers.RenderPage(template, res, req)
 }
 
@@ -103,7 +107,7 @@ func (h *WebAppsHandler) EditWebApp(res http.ResponseWriter, req *http.Request) 
 			return
 		}
 
-		if err := cmd.NewEditWebAppCmd(h.webAppsStore).Execute(form, id, user); err != nil {
+		if err := cmd.NewEditWebAppCmd(h.webAppsStore, h.subscribersStore).Execute(form, id, user); err != nil {
 			if err == sql.ErrNoRows {
 				helpers.NotFoundError(res, req)
 				return
@@ -123,7 +127,7 @@ func (h *WebAppsHandler) EditWebApp(res http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	app, err := cmd.NewGetWebAppCmd(h.webAppsStore).Execute(id, user)
+	app, subscribers, err := cmd.NewGetWebAppCmd(h.webAppsStore, h.subscribersStore).Execute(id, user)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -135,13 +139,22 @@ func (h *WebAppsHandler) EditWebApp(res http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	form := types.WebAppForm{
-		Id:     app.Id,
-		Name:   app.Name,
-		Url:    app.Url,
-		Errors: make(map[string]types.FieldError),
+	notify := make([]string, len(subscribers))
+
+	for idx, subscriber := range subscribers {
+		notify[idx] = subscriber.Email
 	}
-	template := views.WebApp(form, nil, user, types.EditMode)
+
+	form := types.WebAppForm{
+		Id:       app.Id,
+		Name:     app.Name,
+		Url:      app.Url,
+		Status:   app.Status,
+		Interval: app.Interval,
+		Notify:   notify,
+		Errors:   make(map[string]types.FieldError),
+	}
+	template := views.WebApp(form, nil, []*types.Subscriber{}, user, types.EditMode)
 	helpers.RenderPage(template, res, req)
 }
 
@@ -149,7 +162,28 @@ func (h *WebAppsHandler) DeleteWebApp(res http.ResponseWriter, req *http.Request
 	user := helpers.AuthPrincipal(req)
 	id := req.PathValue("id")
 
-	if err := cmd.NewDeleteWebAppCmd(h.webAppsStore).Execute(id, user); err != nil {
+	if err := cmd.NewDeleteWebAppCmd(
+		h.webAppsStore,
+		h.subscribersStore,
+		h.healthChecksStore,
+	).Execute(id, user); err != nil {
+		if err == sql.ErrNoRows {
+			helpers.NotFoundError(res, req)
+			return
+		}
+
+		helpers.InternalServerError(err, res, req)
+		return
+	}
+
+	helpers.Redirect("/", res, req)
+}
+
+func (h *WebAppsHandler) DeleteSubscriber(res http.ResponseWriter, req *http.Request) {
+	user := helpers.AuthPrincipal(req)
+	id := req.PathValue("id")
+
+	if err := cmd.NewDeleteSubscriberCmd(h.webAppsStore, h.subscribersStore).Execute(id, user); err != nil {
 		if err == sql.ErrNoRows {
 			helpers.NotFoundError(res, req)
 			return

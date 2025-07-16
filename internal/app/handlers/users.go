@@ -64,7 +64,7 @@ func (h *UsersHandler) SignIn(res http.ResponseWriter, req *http.Request) {
 			Name:     "token",
 			Value:    token,
 			HttpOnly: true,
-			Secure:   true,
+			Secure:   h.settings.Authorization.OverHttps,
 			Path:     "/",
 		}
 		http.SetCookie(res, cookie)
@@ -82,7 +82,7 @@ func (h *UsersHandler) SignOut(res http.ResponseWriter, req *http.Request) {
 		Value:    "",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   h.settings.Authorization.OverHttps,
 		Path:     "/",
 		MaxAge:   -1,
 	}

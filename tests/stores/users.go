@@ -29,7 +29,7 @@ func (s *inMemUsersStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
-func (s *inMemUsersStore) GetByEmail(eml string) (*types.User, error) {
+func (s *inMemUsersStore) GetByEmail(eml string, ctx *types.DbCtx) (*types.User, error) {
 	user, exists := s.data[eml]
 
 	if !exists {
@@ -39,7 +39,7 @@ func (s *inMemUsersStore) GetByEmail(eml string) (*types.User, error) {
 	return user, nil
 }
 
-func (s *inMemUsersStore) Insert(usr *types.User) (*types.User, error) {
+func (s *inMemUsersStore) Insert(usr *types.User, ctx *types.DbCtx) (*types.User, error) {
 	if _, exists := s.data[usr.Email]; exists {
 		return nil, fmt.Errorf("unique constraint violated: %s", usr.Email)
 	}

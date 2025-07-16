@@ -1,6 +1,9 @@
 package types
 
-import "database/sql"
+import (
+	"database/sql"
+	"time"
+)
 
 type DbCtx struct {
 	Tx *sql.Tx
@@ -18,16 +21,36 @@ type dbStore interface {
 
 type UsersStore interface {
 	dbStore
-	GetByEmail(eml string) (*User, error)
-	Insert(usr *User) (*User, error)
+	GetByEmail(eml string, ctx *DbCtx) (*User, error)
+	Insert(usr *User, ctx *DbCtx) (*User, error)
 }
 
 type WebAppsStore interface {
 	dbStore
-	CountByFilter(ftr Filter) (int, error)
-	DeleteByIdAndUserEmail(id, usr string) error
-	GetByFilter(ftr Filter, pag Pagination) ([]*WebApp, error)
-	GetByIdAndUserEmail(id, usr string) (*WebApp, error)
-	Insert(wap *WebApp) (*WebApp, error)
-	Update(wap *WebApp) (*WebApp, error)
+	CountByFilter(ftr Filter, ctx *DbCtx) (int, error)
+	DeleteByIdAndUserEmail(id, usr string, ctx *DbCtx) error
+	GetByFilter(ftr Filter, pag Pagination, ctx *DbCtx) ([]*WebApp, error)
+	GetByIdAndUserEmail(id, usr string, ctx *DbCtx) (*WebApp, error)
+	GetByIntervalOrderByNameAsc(itv string, ctx *DbCtx) ([]*WebApp, error)
+	Insert(wap *WebApp, ctx *DbCtx) (*WebApp, error)
+	Update(wap *WebApp, ctx *DbCtx) (*WebApp, error)
+}
+
+type SubscribersStore interface {
+	dbStore
+	DeleteByWebAppId(wid string, ctx *DbCtx) error
+	DeleteByWebAppIdAndEmail(wid, eml string, ctx *DbCtx) error
+	GetByWebAppIdOrderByEmailAsc(wid string, ctx *DbCtx) ([]*Subscriber, error)
+	Insert(sub *Subscriber, ctx *DbCtx) (*Subscriber, error)
+}
+
+type HealthChecksStore interface {
+	dbStore
+	CountByFilter(ftr Filter, ctx *DbCtx) (int, error)
+	DeleteByCreatedAtLowerThan(cre time.Time, ctx *DbCtx) error
+	DeleteByWebAppId(wid string, ctx *DbCtx) error
+	GetByFilter(ftr Filter, pag Pagination, ctx *DbCtx) ([]*HealthCheck, error)
+	GetByWebAppId(wid string, ctx *DbCtx) ([]*HealthCheck, error)
+	GetFirstByWebAppIdOrderByCreatedAtDesc(wid string, ctx *DbCtx) (*HealthCheck, error)
+	Insert(hck *HealthCheck, ctx *DbCtx) (*HealthCheck, error)
 }

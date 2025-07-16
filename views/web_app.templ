@@ -3,7 +3,7 @@ package views
 import "github.com/ternaryss/houston/views/components"
 import "github.com/ternaryss/houston/internal/app/types"
 
-templ WebApp(frm types.WebAppForm, app *types.WebApp, usr, mod string) {
+templ WebApp(frm types.WebAppForm, app *types.WebApp, sus []*types.Subscriber, usr, mod string) {
 	<div class="flex flex-col min-h-screen">
 		@components.Navigation(usr)
 		<main class="flex-grow px-6 py-4">
@@ -11,7 +11,7 @@ templ WebApp(frm types.WebAppForm, app *types.WebApp, usr, mod string) {
 				case types.AddMode, types.EditMode:
 					@components.WebAppForm(frm, mod)
 				case types.ReadMode:
-					@components.WebAppReadonlyForm(app)
+					@components.WebAppReadonlyForm(app, sus, usr)
 			}
 		</main>
 		@components.Footer()

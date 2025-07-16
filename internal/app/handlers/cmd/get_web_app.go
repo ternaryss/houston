@@ -8,29 +8,37 @@ import (
 )
 
 type getWebAppCmd struct {
-	webAppsStore types.WebAppsStore
+	webAppsStore     types.WebAppsStore
+	subscribersStore types.SubscribersStore
 }
 
-func NewGetWebAppCmd(was types.WebAppsStore) *getWebAppCmd {
+func NewGetWebAppCmd(was types.WebAppsStore, sus types.SubscribersStore) *getWebAppCmd {
 	return &getWebAppCmd{
-		webAppsStore: was,
+		webAppsStore:     was,
+		subscribersStore: sus,
 	}
 }
 
-func (c *getWebAppCmd) Execute(id, usr string) (*types.WebApp, error) {
+func (c *getWebAppCmd) Execute(id, usr string) (*types.WebApp, []*types.Subscriber, error) {
 	slog.Info("Fetching web application", "id", id, "user", usr)
 
 	if id == "" {
-		return nil, sql.ErrNoRows
+		return nil, []*types.Subscriber{}, sql.ErrNoRows
 	}
 
-	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr)
+	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr, nil)
 
 	if err != nil {
-		return nil, err
+		return nil, []*types.Subscriber{}, err
 	}
 
-	slog.Info("Web application fetched", "app", app)
+	subscribers, err := c.subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id, nil)
 
-	return app, nil
+	if err != nil {
+		return nil, []*types.Subscriber{}, err
+	}
+
+	slog.Info("Web application fetched", "app", app, "subscribers", len(subscribers))
+
+	return app, subscribers, nil
 }

@@ -32,7 +32,7 @@ func (c *signInCmd) Execute(frm types.SignInForm) (string, error) {
 		return "", nil
 	}
 
-	user, err := c.usersStore.GetByEmail(frm.Email)
+	user, err := c.usersStore.GetByEmail(frm.Email, nil)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

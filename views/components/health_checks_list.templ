@@ -1,0 +1,89 @@
+package components
+
+import (
+	"fmt"
+	"github.com/ternaryss/houston/internal/app/types"
+	"time"
+)
+
+templ HealthChecksList(app *types.WebApp, pag types.Page) {
+	<div id="health">
+		<h5 class="text-base-content text-lg px-4">Health</h5>
+		<hr class="my-4"/>
+		if len(pag.Content) != 0 {
+			<div class="flex flex-col px-4 overflow-x-auto">
+				<table class="table-striped table">
+					<thead>
+						<tr>
+							<th>Time</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, health := range pag.Content {
+							<tr>
+								<td class="text-nowrap" data-utc={ health.(*types.HealthCheck).CreatedAt.Format(time.RFC3339) }></td>
+								if health.(*types.HealthCheck).Status == app.Status {
+									<td><span class="badge badge-success">{ health.(*types.HealthCheck).Status }</span></td>
+								} else {
+									<td><span class="badge badge-error">{ health.(*types.HealthCheck).Status }</span></td>
+								}
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			<nav class="flex items-center justify-center gap-x-1 mt-4 px-4">
+				if pag.Current == 1 {
+					<button type="button" class="btn btn-text btn-square btn-disabled">
+						<span class="icon-[tabler--chevron-left] size-5 rtl:rotate-180"></span>
+					</button>
+				} else {
+					<button type="button" hx-get={ fmt.Sprintf("/web-apps/%s/health?page=%d&size=%d", app.Id, pag.Current-1, pag.Size) } hx-trigger="click" hx-target="#health" hx-swap="outerHTML" class="btn btn-text btn-square">
+						<span class="icon-[tabler--chevron-left] size-5 rtl:rotate-180"></span>
+					</button>
+				}
+				<div class="flex items-center gap-x-1">
+					<button type="button" class="btn btn-text btn-square pointer-events-none">{ pag.Current }</button>
+					<span class="text-base-content/80 mx-3">of</span>
+					<button type="button" class="btn btn-text btn-square pointer-events-none">{ pag.All }</button>
+				</div>
+				if pag.Current == pag.All {
+					<button type="button" class="btn btn-text btn-square btn-disabled">
+						<span class="icon-[tabler--chevron-right] size-5 rtl:rotate-180"></span>
+					</button>
+				} else {
+					<button type="button" hx-get={ fmt.Sprintf("/web-apps/%s/health?page=%d&size=%d", app.Id, pag.Current+1, pag.Size) } hx-trigger="click" hx-target="#health" hx-swap="outerHTML" class="btn btn-text btn-square">
+						<span class="icon-[tabler--chevron-right] size-5 rtl:rotate-180"></span>
+					</button>
+				}
+			</nav>
+		} else {
+			<h6 class="text-base-content text-base px-4 text-center">No data</h6>
+		}
+	</div>
+	<script>
+		document.addEventListener("htmx:afterSwap", function (evt) {
+			if (evt.target.id === 'health') {
+				const format =  new Intl.DateTimeFormat(undefined, {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+					hour: "2-digit",
+					minute: "2-digit",
+					second: "2-digit",
+					hour12: false
+				});
+
+				document.querySelectorAll('#health [data-utc]').forEach((el) => {
+					const utc = el.dataset.utc;
+
+					if (utc) {
+						const local = new Date(utc);
+						el.textContent = format.format(local);
+					}
+				});
+			}
+		});
+	</script>
+}

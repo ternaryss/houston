@@ -1,6 +1,9 @@
 package components
 
-import "github.com/ternaryss/houston/internal/app/types"
+import (
+	"fmt"
+	"github.com/ternaryss/houston/internal/app/types"
+)
 
 templ SignUpForm(frm types.SignUpFrom) {
 	<form id="signUpForm" hx-post="/sign-up" hx-target="#signUpForm" hx-swap="outerHTML" class="w-full md:w-[500px] p-5 md:p-10 md:border md:rounded-lg">
@@ -9,11 +12,7 @@ templ SignUpForm(frm types.SignUpFrom) {
 		</h1>
 		<div class="mt-4 mx-auto input-group max-w-sm">
 			<div class="relative w-full">
-				if _, invalid := frm.Errors["email"]; invalid {
-					<input id="email" name="email" type="email" placeholder="Address e-mail" value={ frm.Email } class="input input-floating peer is-invalid" required/>
-				} else {
-					<input id="email" name="email" type="email" placeholder="Address e-mail" value={ frm.Email } class="input input-floating peer" required/>
-				}
+				<input id="email" name="email" type="email" placeholder="Address e-mail" value={ frm.Email } class={ fmt.Sprintf("input input-floating peer %s", errorClass("email", frm.Errors)) } required/>
 				<label for="email" class="input-floating-label">Address e-mail</label>
 			</div>
 			<span class="input-group-text">
@@ -27,11 +26,7 @@ templ SignUpForm(frm types.SignUpFrom) {
 		}
 		<div class="mt-4 mx-auto input-group max-w-sm">
 			<div class="relative w-full">
-				if _, invalid := frm.Errors["password"]; invalid {
-					<input id="password" name="password" type="password" placeholder="Password" value={ frm.Password } class="input input-floating peer is-invalid" required/>
-				} else {
-					<input id="password" name="password" type="password" placeholder="Password" value={ frm.Password } class="input input-floating peer" required/>
-				}
+				<input id="password" name="password" type="password" placeholder="Password" value={ frm.Password } class={ fmt.Sprintf("input input-floating peer %s", errorClass("password", frm.Errors)) } required/>
 				<label for="password" class="input-floating-label">Password</label>
 			</div>
 			<span class="input-group-text">
@@ -40,11 +35,7 @@ templ SignUpForm(frm types.SignUpFrom) {
 		</div>
 		<div class="mt-4 mx-auto input-group max-w-sm">
 			<div class="relative w-full">
-				if _, invalid := frm.Errors["password"]; invalid {
-					<input id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password" value={ frm.RepeatPassword } class="input input-floating peer is-invalid" required/>
-				} else {
-					<input id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password" value={ frm.RepeatPassword } class="input input-floating peer" required/>
-				}
+				<input id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password" value={ frm.RepeatPassword } class={ fmt.Sprintf("input input-floating peer %s", errorClass("password", frm.Errors)) } required/>
 				<label for="repeatPassword" class="input-floating-label">Repeat password</label>
 			</div>
 			<span class="input-group-text">

@@ -3,17 +3,20 @@ package cmd
 import (
 	"database/sql"
 	"log/slog"
+	"strings"
 
 	"github.com/ternaryss/houston/internal/app/types"
 )
 
 type editWebAppCmd struct {
-	webAppsStore types.WebAppsStore
+	webAppsStore     types.WebAppsStore
+	subscribersStore types.SubscribersStore
 }
 
-func NewEditWebAppCmd(was types.WebAppsStore) *editWebAppCmd {
+func NewEditWebAppCmd(was types.WebAppsStore, sus types.SubscribersStore) *editWebAppCmd {
 	return &editWebAppCmd{
-		webAppsStore: was,
+		webAppsStore:     was,
+		subscribersStore: sus,
 	}
 }
 
@@ -24,7 +27,7 @@ func (c *editWebAppCmd) Execute(frm types.WebAppForm, id, usr string) error {
 		return sql.ErrNoRows
 	}
 
-	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr)
+	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr, nil)
 
 	if err != nil {
 		return err
@@ -39,9 +42,36 @@ func (c *editWebAppCmd) Execute(frm types.WebAppForm, id, usr string) error {
 
 	app.Name = frm.Name
 	app.Url = frm.Url
+	app.Status = frm.Status
+	app.Interval = frm.Interval
 	app.UserEmail = usr
 
-	if _, err := c.webAppsStore.Update(app); err != nil {
+	tx, err := c.webAppsStore.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	if err := c.subscribersStore.DeleteByWebAppId(app.Id, tx); err != nil {
+		c.webAppsStore.Rollback(tx)
+		return err
+	}
+
+	if _, err := c.webAppsStore.Update(app, tx); err != nil {
+		c.webAppsStore.Rollback(tx)
+		return err
+	}
+
+	for _, email := range frm.Notify {
+		subscriber := types.NewSubscriber(app.Id, strings.ToLower(email))
+
+		if _, err := c.subscribersStore.Insert(subscriber, tx); err != nil {
+			c.webAppsStore.Rollback(tx)
+			return err
+		}
+	}
+
+	if err := c.webAppsStore.Commit(tx); err != nil {
 		return err
 	}
 

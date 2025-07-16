@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/spf13/cobra"
+	"github.com/ternaryss/houston/internal/app/cron"
 	"github.com/ternaryss/houston/internal/app/db"
 	"github.com/ternaryss/houston/internal/app/handlers"
 	icmd "github.com/ternaryss/houston/internal/app/handlers/cmd"
@@ -26,11 +27,22 @@ var rootCmd = &cobra.Command{
 		dbProvider.MigrateDatabase()
 		usersStore := db.NewUsersStore(dbProvider.Db())
 		webAppsStore := db.NewWebAppsStore(dbProvider.Db())
+		subscribersStore := db.NewSubscribersStore(dbProvider.Db())
+		healthChecksStore := db.NewHealthChecksStore(dbProvider.Db())
 		errorsHandler := handlers.NewErrorsHandler()
 		dashboardHandler := handlers.NewDashboardHandler(webAppsStore)
-		webAppsHandler := handlers.NewWebAppsHandler(webAppsStore)
+		webAppsHandler := handlers.NewWebAppsHandler(webAppsStore, subscribersStore, healthChecksStore)
+		healthChecksHandler := handlers.NewHealthChecksHandler(settings, webAppsStore, subscribersStore, healthChecksStore)
 		usersHandler := handlers.NewUsersHandler(settings, usersStore)
-		server := web.NewServer(settings, errorsHandler, dashboardHandler, webAppsHandler, usersHandler)
+		retentionScheduler := cron.NewRetentionScheduler(settings, healthChecksHandler)
+		fiveMinutesInterval := cron.NewFiveMinutesIntervalScheduler(healthChecksHandler)
+		fifteenMinutesInterval := cron.NewFifteenMinutesIntervalScheduler(healthChecksHandler)
+		oneHourInterval := cron.NewOneHourIntervalScheduler(healthChecksHandler)
+		retentionScheduler.Run()
+		fiveMinutesInterval.Run()
+		fifteenMinutesInterval.Run()
+		oneHourInterval.Run()
+		server := web.NewServer(settings, errorsHandler, dashboardHandler, webAppsHandler, healthChecksHandler, usersHandler)
 		server.Run()
 	},
 }

@@ -5,12 +5,12 @@ import (
 	"github.com/ternaryss/houston/internal/app/types"
 )
 
-templ WebAppsList(pag types.Page) {
+templ WebAppsList(pag types.Page, usr string) {
 	if len(pag.Content) != 0 {
 		<div id="webAppsList">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
 				for _, app := range pag.Content {
-					@WebAppCard(app.(*types.WebApp))
+					@WebAppCard(app.(*types.WebApp), usr)
 				}
 			</div>
 			<nav class="flex items-center justify-center gap-x-1 mt-4 px-4">

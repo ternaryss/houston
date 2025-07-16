@@ -2,6 +2,15 @@
 
 History of **Houston we have (no) problem** application with changes description.
 
+## 0.3.0 (16.07.2025 - unpublished)
+
+- `FEATURE` Cancel web application subscription
+- `FEATURE` Web application access based on subscription
+- `FEATURE` Web application health checks history
+- `FEATURE` Health checks data retention
+- `FEATURE` Periodic health checks
+- `FEATURE` Periodic health check configuration
+
 ## 0.2.0 (04.07.2025 - unpublished)
 
 - `FEATURE` Edit web application

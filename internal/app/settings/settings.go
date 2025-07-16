@@ -33,7 +33,13 @@ type signUp struct {
 type authorization struct {
 	Secret       string `yaml:"secret"`
 	ExpiresAfter int    `yaml:"expires-after"`
+	OverHttps    bool   `yaml:"over-https"`
 	SignUp       signUp `yaml:"sign-up"`
+}
+
+type retention struct {
+	Enabled   bool `yaml:"enabled"`
+	OlderThan int  `yaml:"older-than"`
 }
 
 type Settings struct {
@@ -41,6 +47,7 @@ type Settings struct {
 	Server        server        `yaml:"server"`
 	Database      database      `yaml:"database"`
 	Authorization authorization `yaml:"authorization"`
+	Retention     retention     `yaml:"retention"`
 }
 
 var loadedSettings *Settings
@@ -62,9 +69,14 @@ func defaultSettings() *Settings {
 		Authorization: authorization{
 			Secret:       "",
 			ExpiresAfter: 12,
+			OverHttps:    true,
 			SignUp: signUp{
 				Enabled: true,
 			},
+		},
+		Retention: retention{
+			Enabled:   false,
+			OlderThan: 30,
 		},
 	}
 }

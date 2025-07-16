@@ -10,11 +10,12 @@ import (
 )
 
 type server struct {
-	settings         settings.Settings
-	errorsHandler    *handlers.ErrorsHandler
-	dashboardHandler *handlers.DashboardHandler
-	webAppsHandler   *handlers.WebAppsHandler
-	usersHandler     *handlers.UsersHandler
+	settings            settings.Settings
+	errorsHandler       *handlers.ErrorsHandler
+	dashboardHandler    *handlers.DashboardHandler
+	webAppsHandler      *handlers.WebAppsHandler
+	healthChecksHandler *handlers.HealthChecksHandler
+	usersHandler        *handlers.UsersHandler
 }
 
 func NewServer(
@@ -22,14 +23,16 @@ func NewServer(
 	erh *handlers.ErrorsHandler,
 	dsh *handlers.DashboardHandler,
 	wah *handlers.WebAppsHandler,
+	hch *handlers.HealthChecksHandler,
 	ush *handlers.UsersHandler,
 ) *server {
 	return &server{
-		settings:         stg,
-		errorsHandler:    erh,
-		dashboardHandler: dsh,
-		webAppsHandler:   wah,
-		usersHandler:     ush,
+		settings:            stg,
+		errorsHandler:       erh,
+		dashboardHandler:    dsh,
+		webAppsHandler:      wah,
+		healthChecksHandler: hch,
+		usersHandler:        ush,
 	}
 }
 
@@ -64,6 +67,8 @@ func (s *server) routes(rtr *http.ServeMux, ebd bool) {
 	rtr.HandleFunc("GET /web-apps/{id}/edit", s.webAppsHandler.EditWebApp)
 	rtr.HandleFunc("PUT /web-apps/{id}", s.webAppsHandler.EditWebApp)
 	rtr.HandleFunc("DELETE /web-apps/{id}", s.webAppsHandler.DeleteWebApp)
+	rtr.HandleFunc("DELETE /web-apps/{id}/subscribers", s.webAppsHandler.DeleteSubscriber)
+	rtr.HandleFunc("GET /web-apps/{id}/health", s.healthChecksHandler.GetHealthChecks)
 	rtr.HandleFunc("GET /{$}", s.dashboardHandler.Dashboard)
 	rtr.HandleFunc("/", s.errorsHandler.NotFoundError)
 }

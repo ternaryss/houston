@@ -8,12 +8,16 @@ import (
 )
 
 type deleteWebAppCmd struct {
-	webAppsStore types.WebAppsStore
+	webAppsStore      types.WebAppsStore
+	subscribersStore  types.SubscribersStore
+	healthChecksStore types.HealthChecksStore
 }
 
-func NewDeleteWebAppCmd(was types.WebAppsStore) *deleteWebAppCmd {
+func NewDeleteWebAppCmd(was types.WebAppsStore, sus types.SubscribersStore, hcs types.HealthChecksStore) *deleteWebAppCmd {
 	return &deleteWebAppCmd{
-		webAppsStore: was,
+		webAppsStore:      was,
+		subscribersStore:  sus,
+		healthChecksStore: hcs,
 	}
 }
 
@@ -24,13 +28,34 @@ func (c *deleteWebAppCmd) Execute(id, usr string) error {
 		return sql.ErrNoRows
 	}
 
-	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr)
+	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr, nil)
 
 	if err != nil {
 		return err
 	}
 
-	if err := c.webAppsStore.DeleteByIdAndUserEmail(app.Id, app.UserEmail); err != nil {
+	tx, err := c.webAppsStore.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	if err := c.healthChecksStore.DeleteByWebAppId(app.Id, tx); err != nil {
+		c.webAppsStore.Rollback(tx)
+		return err
+	}
+
+	if err := c.subscribersStore.DeleteByWebAppId(app.Id, tx); err != nil {
+		c.webAppsStore.Rollback(tx)
+		return err
+	}
+
+	if err := c.webAppsStore.DeleteByIdAndUserEmail(app.Id, app.UserEmail, tx); err != nil {
+		c.webAppsStore.Rollback(tx)
+		return err
+	}
+
+	if err := c.webAppsStore.Commit(tx); err != nil {
 		return err
 	}
 

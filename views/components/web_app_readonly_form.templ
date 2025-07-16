@@ -1,26 +1,49 @@
 package components
 
-import "github.com/ternaryss/houston/internal/app/types"
-import "fmt"
+import (
+	"fmt"
+	"github.com/ternaryss/houston/internal/app/types"
+	"time"
+)
 
-templ WebAppReadonlyForm(app *types.WebApp) {
+templ WebAppReadonlyForm(app *types.WebApp, sus []*types.Subscriber, usr string) {
 	<div class="mx-auto container">
 		<div class="flex items-center justify-between px-4">
 			<h3 class="text-base-content text-2xl truncate max-w-full">Application</h3>
 			<div class="flex gap-2 shrink-0">
-				<a href="/" class="btn btn-square btn-secondary">
-					<span class="icon-[tabler--x]"></span>
-				</a>
-				<button type="button" hx-delete={ fmt.Sprintf("/web-apps/%s", app.Id) } hx-trigger="click" hx-include="none" class="btn btn-square btn-error">
-					<span class="icon-[tabler--trash]"></span>
-				</button>
-				<a href={ fmt.Sprintf("/web-apps/%s/edit", app.Id) } class="btn btn-square btn-primary">
-					<span class="icon-[tabler--pencil]"></span>
-				</a>
+				if app.UserEmail != usr {
+					<a href="/" class="btn btn-square btn-secondary">
+						<span class="icon-[tabler--x]"></span>
+					</a>
+					<button type="button" hx-delete={ fmt.Sprintf("/web-apps/%s/subscribers", app.Id) } hx-trigger="click" class="btn btn-square btn-error">
+						<span class="icon-[tabler--trash]"></span>
+					</button>
+				} else {
+					<a href="/" class="btn btn-square btn-secondary">
+						<span class="icon-[tabler--x]"></span>
+					</a>
+					<button type="button" hx-delete={ fmt.Sprintf("/web-apps/%s", app.Id) } hx-trigger="click" class="btn btn-square btn-error">
+						<span class="icon-[tabler--trash]"></span>
+					</button>
+					<a href={ fmt.Sprintf("/web-apps/%s/edit", app.Id) } class="btn btn-square btn-primary">
+						<span class="icon-[tabler--pencil]"></span>
+					</a>
+				}
 			</div>
 		</div>
 		<hr class="my-4"/>
 		<form class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 max-w-3xl mx-auto w-full">
+			<div class="col-span-2">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						<input id="id" name="id" type="text" placeholder="ID" value={ app.Id } class="input input-floating peer" readonly/>
+						<label for="id" class="input-floating-label">ID</label>
+					</div>
+					<span class="input-group-text">
+						<span class="icon-[tabler--number] text-base-content/80 size-5"></span>
+					</span>
+				</div>
+			</div>
 			<div class="col-span-2">
 				<div class="input-group w-full">
 					<div class="relative w-full">
@@ -43,6 +66,88 @@ templ WebAppReadonlyForm(app *types.WebApp) {
 					</span>
 				</div>
 			</div>
+			<div class="col-span-2 md:col-span-1">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						<input id="status" name="status" type="text" placeholder="Status HTTP" value={ app.Status } class="input input-floating peer" readonly/>
+						<label for="status" class="input-floating-label">Status HTTP</label>
+					</div>
+					<span class="input-group-text">
+						<span class="icon-[tabler--activity-heartbeat] text-base-content/80 size-5"></span>
+					</span>
+				</div>
+			</div>
+			<div class="col-span-2 md:col-span-1">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						<select id="interval" name="interval" class="select select-floating">
+							for _, i := range types.Intervals {
+								if i == app.Interval {
+									<option disabled selected>{ i }</option>
+								}
+							}
+						</select>
+						<label for="interval" class="select-floating-label">Interval</label>
+					</div>
+				</div>
+			</div>
+			<div class="col-span-2 md:col-span-1">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						<input id="createdAt" name="createdAt" type="text" placeholder="Created at" data-utc={ app.CreatedAt.Format(time.RFC3339) } class="input input-floating peer" readonly/>
+						<label for="createdAt" class="input-floating-label">Created at</label>
+					</div>
+					<span class="input-group-text">
+						<span class="icon-[tabler--calendar-plus] text-base-content/80 size-5"></span>
+					</span>
+				</div>
+			</div>
+			<div class="col-span-2 md:col-span-1">
+				<div class="input-group w-full">
+					<div class="relative w-full">
+						<input id="modifiedAt" name="modifiedAt" type="text" placeholder="Modified at" data-utc={ app.ModifiedAt.Format(time.RFC3339) } class="input input-floating peer" readonly/>
+						<label for="modifiedAt" class="input-floating-label">Modified at</label>
+					</div>
+					<span class="input-group-text">
+						<span class="icon-[tabler--calendar-repeat] text-base-content/80 size-5"></span>
+					</span>
+				</div>
+			</div>
+			if len(sus) > 0 {
+				<div class="col-span-2">
+					@NotifyReadonlyForm(sus)
+				</div>
+			}
+			<div class="col-span-2">
+				<div id="health" hx-get={ fmt.Sprintf("/web-apps/%s/health", app.Id) } hx-trigger="load" hx-target="#health" hx-swap="outerHTML"></div>
+			</div>
 		</form>
 	</div>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const createdAt = document.querySelector('#createdAt');
+			const modifiedAt = document.querySelector('#modifiedAt');
+			const createdAtUtc = createdAt?.dataset.utc;
+			const modifiedAtUtc = modifiedAt?.dataset.utc;
+			const format =  new Intl.DateTimeFormat(undefined, {
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+				hour: "2-digit",
+				minute: "2-digit",
+				second: "2-digit",
+				hour12: false
+			});
+
+			if (createdAtUtc) {
+				const createdAtLocal = new Date(createdAtUtc);
+				createdAt.value = format.format(createdAtLocal);
+			}
+
+			if (modifiedAtUtc) {
+				const modifiedAtLocal = new Date(modifiedAtUtc);
+				modifiedAt.value = format.format(modifiedAtLocal);
+			}
+		});
+	</script>
 }
