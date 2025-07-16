@@ -2,7 +2,7 @@
 
 History of **Houston we have (no) problem** application with changes description.
 
-## Next release
+## 0.3.0 (16.07.2025 - unpublished)
 
 - `FEATURE` Cancel web application subscription
 - `FEATURE` Web application access based on subscription
