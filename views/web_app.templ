@@ -11,7 +11,7 @@ templ WebApp(frm types.WebAppForm, app *types.WebApp, sus []*types.Subscriber, u
 				case types.AddMode, types.EditMode:
 					@components.WebAppForm(frm, mod)
 				case types.ReadMode:
-					@components.WebAppReadonlyForm(app, sus)
+					@components.WebAppReadonlyForm(app, sus, usr)
 			}
 		</main>
 		@components.Footer()

@@ -27,7 +27,7 @@ func (c *editWebAppCmd) Execute(frm types.WebAppForm, id, usr string) error {
 		return sql.ErrNoRows
 	}
 
-	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr)
+	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr, nil)
 
 	if err != nil {
 		return err
@@ -52,12 +52,12 @@ func (c *editWebAppCmd) Execute(frm types.WebAppForm, id, usr string) error {
 		return err
 	}
 
-	if err := c.subscribersStore.DeleteByWebAppId(app.Id); err != nil {
+	if err := c.subscribersStore.DeleteByWebAppId(app.Id, tx); err != nil {
 		c.webAppsStore.Rollback(tx)
 		return err
 	}
 
-	if _, err := c.webAppsStore.Update(app); err != nil {
+	if _, err := c.webAppsStore.Update(app, tx); err != nil {
 		c.webAppsStore.Rollback(tx)
 		return err
 	}
@@ -65,7 +65,7 @@ func (c *editWebAppCmd) Execute(frm types.WebAppForm, id, usr string) error {
 	for _, email := range frm.Notify {
 		subscriber := types.NewSubscriber(app.Id, strings.ToLower(email))
 
-		if _, err := c.subscribersStore.Insert(subscriber); err != nil {
+		if _, err := c.subscribersStore.Insert(subscriber, tx); err != nil {
 			c.webAppsStore.Rollback(tx)
 			return err
 		}

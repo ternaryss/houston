@@ -4,6 +4,8 @@ History of **Houston we have (no) problem** application with changes description
 
 ## Next release
 
+- `FEATURE` Cancel web application subscription
+- `FEATURE` Web application access based on subscription
 - `FEATURE` Web application health checks history
 - `FEATURE` Health checks data retention
 - `FEATURE` Periodic health checks

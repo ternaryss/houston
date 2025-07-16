@@ -43,14 +43,19 @@ func (s *usersStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
-func (s *usersStore) GetByEmail(eml string) (*types.User, error) {
+func (s *usersStore) GetByEmail(eml string, ctx *types.DbCtx) (*types.User, error) {
 	var user types.User
 	var createdAt int64
 	var modifiedAt int64
+	exec := s.db.QueryRow
 	query := `SELECT EMAIL, "PASSWORD", CREATED_AT, MODIFIED_AT FROM USERS
 				WHERE LOWER(EMAIL) = LOWER($1)`
 
-	if err := s.db.QueryRow(query, eml).Scan(
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(query, eml).Scan(
 		&user.Email,
 		&user.Password,
 		&createdAt,
@@ -65,10 +70,15 @@ func (s *usersStore) GetByEmail(eml string) (*types.User, error) {
 	return &user, nil
 }
 
-func (s *usersStore) Insert(usr *types.User) (*types.User, error) {
+func (s *usersStore) Insert(usr *types.User, ctx *types.DbCtx) (*types.User, error) {
+	exec := s.db.Exec
 	query := `INSERT INTO USERS (EMAIL, "PASSWORD", CREATED_AT, MODIFIED_AT) VALUES ($1, $2, $3, $4)`
 
-	if _, err := s.db.Exec(query, usr.Email, usr.Password, usr.CreatedAt.Unix(), usr.ModifiedAt.Unix()); err != nil {
+	if ctx != nil {
+		exec = ctx.Tx.Exec
+	}
+
+	if _, err := exec(query, usr.Email, usr.Password, usr.CreatedAt.Unix(), usr.ModifiedAt.Unix()); err != nil {
 		return nil, err
 	}
 

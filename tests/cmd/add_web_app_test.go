@@ -439,7 +439,7 @@ func TestSuccessAddWebAppWithoutNotify(tst *testing.T) {
 	}
 
 	// Then
-	app, err := webAppsStore.GetByIdAndUserEmail(id, user)
+	app, err := webAppsStore.GetByIdAndUserEmail(id, user, nil)
 
 	if err != nil {
 		tst.Errorf("Reading web app data failed: %s", err)
@@ -499,7 +499,7 @@ func TestSuccessAddWebAppWithNotify(tst *testing.T) {
 	}
 
 	// Then
-	app, err := webAppsStore.GetByIdAndUserEmail(id, user)
+	app, err := webAppsStore.GetByIdAndUserEmail(id, user, nil)
 
 	if err != nil {
 		tst.Errorf("Reading web app data failed: %s", err)
@@ -525,7 +525,7 @@ func TestSuccessAddWebAppWithNotify(tst *testing.T) {
 		tst.Error("User not matched")
 	}
 
-	subscribers, err := subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id)
+	subscribers, err := subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id, nil)
 
 	if err != nil {
 		tst.Errorf("Reading subscribers data failed: %s", err)

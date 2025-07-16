@@ -62,7 +62,7 @@ func TestEditWebAppEmptyName(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "")
@@ -110,7 +110,7 @@ func TestEditWebAppEmptyUrl(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Google")
@@ -157,7 +157,7 @@ func TestEditWebAppInvalidUrl(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Google")
@@ -205,7 +205,7 @@ func TestEditWebAppStatusTooLow(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Google")
@@ -253,7 +253,7 @@ func TestEditWebAppStatusTooHigh(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Google")
@@ -301,7 +301,7 @@ func TestEditWebAppEmptyInterval(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Google")
@@ -349,7 +349,7 @@ func TestEditWebAppInvalidInterval(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Google")
@@ -397,7 +397,7 @@ func TestEditWebAppEmptyEmail(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Google")
@@ -446,7 +446,7 @@ func TestEditWebAppInvalidEmail(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Google")
@@ -495,7 +495,7 @@ func TestSuccessEditWebAppWithoutNotify(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	webAppsStore.Insert(app)
+	webAppsStore.Insert(app, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Yahoo")
@@ -522,7 +522,7 @@ func TestSuccessEditWebAppWithoutNotify(tst *testing.T) {
 	}
 
 	// Then
-	app, err = webAppsStore.GetByIdAndUserEmail(app.Id, user)
+	app, err = webAppsStore.GetByIdAndUserEmail(app.Id, user, nil)
 
 	if err != nil {
 		tst.Errorf("Reading web app data failed: %s", err)
@@ -556,9 +556,9 @@ func TestSuccessEditWebAppWithNotify(tst *testing.T) {
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	app, _ = webAppsStore.Insert(app)
+	app, _ = webAppsStore.Insert(app, nil)
 	subscriber := types.NewSubscriber(app.Id, user)
-	subscribersStore.Insert(subscriber)
+	subscribersStore.Insert(subscriber, nil)
 	cmd := cmd.NewEditWebAppCmd(webAppsStore, subscribersStore)
 	data := url.Values{}
 	data.Set("name", "Yahoo")
@@ -586,7 +586,7 @@ func TestSuccessEditWebAppWithNotify(tst *testing.T) {
 	}
 
 	// Then
-	app, err = webAppsStore.GetByIdAndUserEmail(app.Id, user)
+	app, err = webAppsStore.GetByIdAndUserEmail(app.Id, user, nil)
 
 	if err != nil {
 		tst.Errorf("Reading web app data failed: %s", err)
@@ -612,7 +612,7 @@ func TestSuccessEditWebAppWithNotify(tst *testing.T) {
 		tst.Error("User not matched")
 	}
 
-	subscribers, err := subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id)
+	subscribers, err := subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id, nil)
 
 	if err != nil {
 		tst.Errorf("Reading subscribers data failed: %s", err)

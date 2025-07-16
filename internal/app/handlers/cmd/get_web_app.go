@@ -26,13 +26,13 @@ func (c *getWebAppCmd) Execute(id, usr string) (*types.WebApp, []*types.Subscrib
 		return nil, []*types.Subscriber{}, sql.ErrNoRows
 	}
 
-	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr)
+	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr, nil)
 
 	if err != nil {
 		return nil, []*types.Subscriber{}, err
 	}
 
-	subscribers, err := c.subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id)
+	subscribers, err := c.subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id, nil)
 
 	if err != nil {
 		return nil, []*types.Subscriber{}, err

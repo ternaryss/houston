@@ -23,7 +23,7 @@ func (c *getWebAppsCmd) Execute(qry url.Values, usr string) (types.Page, error) 
 	sortable := []string{"name", "userEmail", "createdAt"}
 	filter := types.NewFilter("", "name asc", "", sortable)
 	filter.Params["userEmail"] = usr
-	quantity, err := c.webAppsStore.CountByFilter(filter)
+	quantity, err := c.webAppsStore.CountByFilter(filter, nil)
 	slog.Info("Web applications counted", "quantity", quantity, "filter", filter)
 
 	if err != nil {
@@ -49,7 +49,7 @@ func (c *getWebAppsCmd) Execute(qry url.Values, usr string) (types.Page, error) 
 		return types.EmptyPage(), nil
 	}
 
-	apps, err := c.webAppsStore.GetByFilter(filter, pagination)
+	apps, err := c.webAppsStore.GetByFilter(filter, pagination, nil)
 
 	if err != nil {
 		return types.EmptyPage(), err

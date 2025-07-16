@@ -24,7 +24,7 @@ func (c *retentionCmd) Execute(day int) {
 	olderThan := today.Add(-days)
 	slog.Info("Executing health checks retention", "olderThan", olderThan)
 
-	if err := c.healthChecksStore.DeleteByCreatedAtLowerThan(olderThan); err != nil {
+	if err := c.healthChecksStore.DeleteByCreatedAtLowerThan(olderThan, nil); err != nil {
 		slog.Error("Health checks retention failed", "err", err)
 		return
 	}

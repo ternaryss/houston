@@ -10,14 +10,13 @@ import (
 	"github.com/ternaryss/houston/tests/stores"
 )
 
-func TestDeleteWebAppNoId(tst *testing.T) {
+func TestDeleteSubscriberEmptyWebAppId(tst *testing.T) {
 	// Given
 	id := ""
 	user := "test@test.pl"
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	healthChecksStore := stores.NewInMemHealthChecksStore()
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore, healthChecksStore)
+	cmd := cmd.NewDeleteSubscriberCmd(webAppsStore, subscribersStore)
 
 	// When
 	err := cmd.Execute(id, user)
@@ -28,14 +27,13 @@ func TestDeleteWebAppNoId(tst *testing.T) {
 	}
 }
 
-func TestDeleteWebAppNotFound(tst *testing.T) {
+func TestDeleteSubscriberWebAppNotFound(tst *testing.T) {
 	// Given
 	id := uuid.New().String()
 	user := "test@test.pl"
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	healthChecksStore := stores.NewInMemHealthChecksStore()
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore, healthChecksStore)
+	cmd := cmd.NewDeleteSubscriberCmd(webAppsStore, subscribersStore)
 
 	// When
 	err := cmd.Execute(id, user)
@@ -46,30 +44,23 @@ func TestDeleteWebAppNotFound(tst *testing.T) {
 	}
 }
 
-func TestSuccessDeleteWebApp(tst *testing.T) {
+func TestSuccessDeleteSubscriber(tst *testing.T) {
 	// Given
 	user := "test@test.pl"
-	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
 	subscribersStore := stores.NewInMemSubscribersStore()
-	healthChecksStore := stores.NewInMemHealthChecksStore()
+	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	app, _ = webAppsStore.Insert(app, nil)
 	subscriber := types.NewSubscriber(app.Id, user)
 	subscribersStore.Insert(subscriber, nil)
-	health := types.NewHealthCheck(app.Id, 200)
-	healthChecksStore.Insert(health, nil)
-	cmd := cmd.NewDeleteWebAppCmd(webAppsStore, subscribersStore, healthChecksStore)
+	cmd := cmd.NewDeleteSubscriberCmd(webAppsStore, subscribersStore)
 
 	// When
 	err := cmd.Execute(app.Id, user)
 
 	// Then
 	if err != nil {
-		tst.Errorf("Deleting web application failed: %s", err)
-	}
-
-	if _, err := webAppsStore.GetByIdAndUserEmail(app.Id, user, nil); err != sql.ErrNoRows {
-		tst.Errorf("Ended with invalid error: %s", err)
+		tst.Errorf("Deleting subscriber failed: %s", err)
 	}
 
 	subscribers, err := subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id, nil)
@@ -79,16 +70,6 @@ func TestSuccessDeleteWebApp(tst *testing.T) {
 	}
 
 	if len(subscribers) != 0 {
-		tst.Errorf("Subscribers not deleted")
-	}
-
-	checks, err := healthChecksStore.GetByWebAppId(app.Id, nil)
-
-	if err != nil {
-		tst.Errorf("Fetching health checks failed: %s", err)
-	}
-
-	if len(checks) != 0 {
-		tst.Errorf("Health checks not deleted")
+		tst.Errorf("Subscriber not deleted")
 	}
 }

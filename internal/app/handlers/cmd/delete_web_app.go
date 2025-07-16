@@ -28,7 +28,7 @@ func (c *deleteWebAppCmd) Execute(id, usr string) error {
 		return sql.ErrNoRows
 	}
 
-	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr)
+	app, err := c.webAppsStore.GetByIdAndUserEmail(id, usr, nil)
 
 	if err != nil {
 		return err
@@ -40,17 +40,17 @@ func (c *deleteWebAppCmd) Execute(id, usr string) error {
 		return err
 	}
 
-	if err := c.healthChecksStore.DeleteByWebAppId(app.Id); err != nil {
+	if err := c.healthChecksStore.DeleteByWebAppId(app.Id, tx); err != nil {
 		c.webAppsStore.Rollback(tx)
 		return err
 	}
 
-	if err := c.subscribersStore.DeleteByWebAppId(app.Id); err != nil {
+	if err := c.subscribersStore.DeleteByWebAppId(app.Id, tx); err != nil {
 		c.webAppsStore.Rollback(tx)
 		return err
 	}
 
-	if err := c.webAppsStore.DeleteByIdAndUserEmail(app.Id, app.UserEmail); err != nil {
+	if err := c.webAppsStore.DeleteByIdAndUserEmail(app.Id, app.UserEmail, tx); err != nil {
 		c.webAppsStore.Rollback(tx)
 		return err
 	}

@@ -3,6 +3,7 @@ package stores
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/ternaryss/houston/internal/app/types"
 )
@@ -31,7 +32,7 @@ func (s *inMemSubscribersStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
-func (s *inMemSubscribersStore) DeleteByWebAppId(wid string) error {
+func (s *inMemSubscribersStore) DeleteByWebAppId(wid string, ctx *types.DbCtx) error {
 	for id, subscriber := range s.data {
 		if subscriber.WebAppId == wid {
 			delete(s.data, id)
@@ -41,7 +42,17 @@ func (s *inMemSubscribersStore) DeleteByWebAppId(wid string) error {
 	return nil
 }
 
-func (s *inMemSubscribersStore) GetByWebAppIdOrderByEmailAsc(wid string) ([]*types.Subscriber, error) {
+func (s *inMemSubscribersStore) DeleteByWebAppIdAndEmail(wid, eml string, ctx *types.DbCtx) error {
+	for id, subscriber := range s.data {
+		if subscriber.WebAppId == wid && strings.EqualFold(subscriber.Email, eml) {
+			delete(s.data, id)
+		}
+	}
+
+	return nil
+}
+
+func (s *inMemSubscribersStore) GetByWebAppIdOrderByEmailAsc(wid string, ctx *types.DbCtx) ([]*types.Subscriber, error) {
 	var collection []*types.Subscriber
 
 	for _, subscriber := range s.data {
@@ -57,7 +68,7 @@ func (s *inMemSubscribersStore) GetByWebAppIdOrderByEmailAsc(wid string) ([]*typ
 	return collection, nil
 }
 
-func (s *inMemSubscribersStore) Insert(sub *types.Subscriber) (*types.Subscriber, error) {
+func (s *inMemSubscribersStore) Insert(sub *types.Subscriber, ctx *types.DbCtx) (*types.Subscriber, error) {
 	s.sequence++
 
 	if _, exists := s.data[s.sequence]; exists {

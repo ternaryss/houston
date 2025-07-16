@@ -44,43 +44,64 @@ func (s *healthChecksStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
-func (s *healthChecksStore) CountByFilter(ftr types.Filter) (int, error) {
+func (s *healthChecksStore) CountByFilter(ftr types.Filter, ctx *types.DbCtx) (int, error) {
 	var quantity int
+	exec := s.db.QueryRow
 	query := `SELECT COUNT(1) FROM HEALTH_CHECKS WHERE WEB_APP_ID = $1`
 
-	if err := s.db.QueryRow(query, ftr.Params["webAppId"]).Scan(&quantity); err != nil {
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(query, ftr.Params["webAppId"]).Scan(&quantity); err != nil {
 		return -1, err
 	}
 
 	return quantity, nil
 }
 
-func (s *healthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time) error {
+func (s *healthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time, ctx *types.DbCtx) error {
+	exec := s.db.Exec
 	query := `DELETE FROM HEALTH_CHECKS WHERE CREATED_AT <= $1`
 
-	if _, err := s.db.Exec(query, cre.Unix()); err != nil {
+	if ctx != nil {
+		exec = ctx.Tx.Exec
+	}
+
+	if _, err := exec(query, cre.Unix()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *healthChecksStore) DeleteByWebAppId(wid string) error {
+func (s *healthChecksStore) DeleteByWebAppId(wid string, ctx *types.DbCtx) error {
+	exec := s.db.Exec
 	query := `DELETE FROM HEALTH_CHECKS WHERE WEB_APP_ID = $1`
 
-	if _, err := s.db.Exec(query, wid); err != nil {
+	if ctx != nil {
+		exec = ctx.Tx.Exec
+	}
+
+	if _, err := exec(query, wid); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *healthChecksStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.HealthCheck, error) {
+func (s *healthChecksStore) GetByFilter(ftr types.Filter, pag types.Pagination, ctx *types.DbCtx) ([]*types.HealthCheck, error) {
+	exec := s.db.Query
 	query := fmt.Sprintf(`SELECT ID, WEB_APP_ID, STATUS, CREATED_AT CREATEDAT, MODIFIED_AT
 		FROM HEALTH_CHECKS
 		WHERE WEB_APP_ID = $1
 		ORDER BY %s LIMIT $2 OFFSET $3`, ftr.Sort)
-	rows, err := s.db.Query(query, ftr.Params["webAppId"], pag.Limit, pag.Offset)
+
+	if ctx != nil {
+		exec = ctx.Tx.Query
+	}
+
+	rows, err := exec(query, ftr.Params["webAppId"], pag.Limit, pag.Offset)
 
 	if err != nil {
 		return nil, err
@@ -112,10 +133,16 @@ func (s *healthChecksStore) GetByFilter(ftr types.Filter, pag types.Pagination) 
 	return collection, nil
 }
 
-func (s *healthChecksStore) GetByWebAppId(wid string) ([]*types.HealthCheck, error) {
+func (s *healthChecksStore) GetByWebAppId(wid string, ctx *types.DbCtx) ([]*types.HealthCheck, error) {
+	exec := s.db.Query
 	query := `SELECT ID, WEB_APP_ID, STATUS, CREATED_AT, MODIFIED_AT
 		FROM HEALTH_CHECKS WHERE WEB_APP_ID = $1`
-	rows, err := s.db.Query(query, wid)
+
+	if ctx != nil {
+		exec = ctx.Tx.Query
+	}
+
+	rows, err := exec(query, wid)
 
 	if err != nil {
 		return nil, err
@@ -147,14 +174,19 @@ func (s *healthChecksStore) GetByWebAppId(wid string) ([]*types.HealthCheck, err
 	return collection, nil
 }
 
-func (s *healthChecksStore) GetFirstByWebAppIdOrderByCreatedAtDesc(wid string) (*types.HealthCheck, error) {
+func (s *healthChecksStore) GetFirstByWebAppIdOrderByCreatedAtDesc(wid string, ctx *types.DbCtx) (*types.HealthCheck, error) {
 	var health types.HealthCheck
 	var createdAt int64
 	var modifiedAt int64
+	exec := s.db.QueryRow
 	query := `SELECT ID, WEB_APP_ID, STATUS, CREATED_AT, MODIFIED_AT FROM HEALTH_CHECKS
 		WHERE WEB_APP_ID = $1 ORDER BY CREATED_AT DESC LIMIT 1`
 
-	if err := s.db.QueryRow(query, wid).Scan(
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(query, wid).Scan(
 		&health.Id,
 		&health.WebAppId,
 		&health.Status,
@@ -170,12 +202,17 @@ func (s *healthChecksStore) GetFirstByWebAppIdOrderByCreatedAtDesc(wid string) (
 	return &health, nil
 }
 
-func (s *healthChecksStore) Insert(hck *types.HealthCheck) (*types.HealthCheck, error) {
+func (s *healthChecksStore) Insert(hck *types.HealthCheck, ctx *types.DbCtx) (*types.HealthCheck, error) {
 	var id int64
+	exec := s.db.QueryRow
 	query := `INSERT INTO HEALTH_CHECKS (WEB_APP_ID, STATUS, CREATED_AT, MODIFIED_AT)
 		VALUES ($1, $2, $3, $4) RETURNING ID`
 
-	if err := s.db.QueryRow(
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(
 		query,
 		hck.WebAppId,
 		hck.Status,

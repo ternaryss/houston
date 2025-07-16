@@ -30,7 +30,7 @@ func (c *signUpCmd) Execute(frm types.SignUpFrom) error {
 
 	email := strings.ToLower(strings.TrimSpace(frm.Email))
 	password := strings.TrimSpace(frm.Password)
-	exists, err := c.usersStore.GetByEmail(email)
+	exists, err := c.usersStore.GetByEmail(email, nil)
 
 	if err != nil && err != sql.ErrNoRows {
 		return err
@@ -50,7 +50,7 @@ func (c *signUpCmd) Execute(frm types.SignUpFrom) error {
 
 	user := types.NewUser(email, string(passHash))
 
-	if _, err := c.usersStore.Insert(user); err != nil {
+	if _, err := c.usersStore.Insert(user, nil); err != nil {
 		return err
 	}
 

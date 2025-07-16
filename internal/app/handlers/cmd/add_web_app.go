@@ -35,7 +35,7 @@ func (c *addWebAppCmd) Execute(frm types.WebAppForm, usr string) (string, error)
 	}
 
 	app := types.NewWebApp(frm.Name, frm.Url, frm.Interval, usr, frm.Status)
-	app, err = c.webAppsStore.Insert(app)
+	app, err = c.webAppsStore.Insert(app, tx)
 
 	if err != nil {
 		c.webAppsStore.Rollback(tx)
@@ -45,7 +45,7 @@ func (c *addWebAppCmd) Execute(frm types.WebAppForm, usr string) (string, error)
 	for _, email := range frm.Notify {
 		subscriber := types.NewSubscriber(app.Id, strings.ToLower(email))
 
-		if _, err := c.subscribersStore.Insert(subscriber); err != nil {
+		if _, err := c.subscribersStore.Insert(subscriber, tx); err != nil {
 			c.webAppsStore.Rollback(tx)
 			return "", err
 		}

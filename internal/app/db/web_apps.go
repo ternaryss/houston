@@ -45,33 +45,79 @@ func (s *webAppsStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
-func (s *webAppsStore) CountByFilter(ftr types.Filter) (int, error) {
+func (s *webAppsStore) CountByFilter(ftr types.Filter, ctx *types.DbCtx) (int, error) {
 	var quantity int
-	query := `SELECT COUNT(1) FROM WEB_APPS WHERE LOWER(USER_EMAIL) = LOWER($1)`
+	exec := s.db.QueryRow
+	query := `SELECT COUNT(1) FROM (
+		SELECT DISTINCT
+			wa.ID,
+			wa.NAME,
+			wa.URL,
+			wa.STATUS,
+			wa.INTERVAL,
+			wa.USER_EMAIL,
+			wa.HEALTHY,
+			wa.CREATED_AT,
+			wa.MODIFIED_AT
+		FROM
+			WEB_APPS wa
+		LEFT JOIN SUBSCRIBERS su ON
+			su.WEB_APP_ID = wa.ID
+		WHERE
+			LOWER(wa.USER_EMAIL) = LOWER($1) OR LOWER(su.EMAIL) = LOWER($1)
+	)`
 
-	if err := s.db.QueryRow(query, ftr.Params["userEmail"]).Scan(&quantity); err != nil {
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(query, ftr.Params["userEmail"]).Scan(&quantity); err != nil {
 		return -1, err
 	}
 
 	return quantity, nil
 }
 
-func (s *webAppsStore) DeleteByIdAndUserEmail(id, usr string) error {
+func (s *webAppsStore) DeleteByIdAndUserEmail(id, usr string, ctx *types.DbCtx) error {
+	exec := s.db.Exec
 	query := `DELETE FROM WEB_APPS WHERE ID = $1 AND LOWER(USER_EMAIL) = LOWER($2)`
 
-	if _, err := s.db.Exec(query, id, usr); err != nil {
+	if ctx != nil {
+		exec = ctx.Tx.Exec
+	}
+
+	if _, err := exec(query, id, usr); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *webAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.WebApp, error) {
-	query := fmt.Sprintf(`SELECT ID, NAME, URL, STATUS, INTERVAL, USER_EMAIL USEREMAIL, HEALTHY, CREATED_AT CREATEDAT, MODIFIED_AT
-		FROM WEB_APPS
-		WHERE LOWER(USER_EMAIL) = LOWER($1)
+func (s *webAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination, ctx *types.DbCtx) ([]*types.WebApp, error) {
+	exec := s.db.Query
+	query := fmt.Sprintf(`SELECT DISTINCT
+			wa.ID,
+			wa.NAME,
+			wa.URL,
+			wa.STATUS,
+			wa.INTERVAL,
+			wa.USER_EMAIL USEREMAIL,
+			wa.HEALTHY,
+			wa.CREATED_AT CREATEDAT,
+			wa.MODIFIED_AT
+		FROM
+			WEB_APPS wa
+		LEFT JOIN SUBSCRIBERS su ON
+			su.WEB_APP_ID = wa.ID
+		WHERE
+			LOWER(wa.USER_EMAIL) = LOWER($1) OR LOWER(su.EMAIL) = LOWER($1)
 		ORDER BY %s LIMIT $2 OFFSET $3`, ftr.Sort)
-	rows, err := s.db.Query(query, ftr.Params["userEmail"], pag.Limit, pag.Offset)
+
+	if ctx != nil {
+		exec = ctx.Tx.Query
+	}
+
+	rows, err := exec(query, ftr.Params["userEmail"], pag.Limit, pag.Offset)
 
 	if err != nil {
 		return nil, err
@@ -107,14 +153,32 @@ func (s *webAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*t
 	return collection, nil
 }
 
-func (s *webAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, error) {
+func (s *webAppsStore) GetByIdAndUserEmail(id, usr string, ctx *types.DbCtx) (*types.WebApp, error) {
 	var app types.WebApp
 	var createdAt int64
 	var modifiedAt int64
-	query := `SELECT ID, NAME, URL, STATUS, INTERVAL, USER_EMAIL, HEALTHY, CREATED_AT, MODIFIED_AT FROM WEB_APPS
-		WHERE ID = $1 AND LOWER(USER_EMAIL) = LOWER($2)`
+	exec := s.db.QueryRow
+	query := `SELECT DISTINCT
+			wa.ID,
+			wa.NAME,
+			wa.URL,
+			wa.STATUS,
+			wa.INTERVAL,
+			wa.USER_EMAIL,
+			wa.HEALTHY,
+			wa.CREATED_AT,
+			wa.MODIFIED_AT
+		FROM
+			WEB_APPS wa
+		LEFT JOIN SUBSCRIBERS su ON
+			su.WEB_APP_ID = wa.ID
+		WHERE wa.ID = $1 AND (LOWER(wa.USER_EMAIL) = LOWER($2) OR LOWER(su.EMAIL) = LOWER($2))`
 
-	if err := s.db.QueryRow(query, id, usr).Scan(
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(query, id, usr).Scan(
 		&app.Id,
 		&app.Name,
 		&app.Url,
@@ -134,12 +198,18 @@ func (s *webAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, error
 	return &app, nil
 }
 
-func (s *webAppsStore) GetByIntervalOrderByNameAsc(itv string) ([]*types.WebApp, error) {
+func (s *webAppsStore) GetByIntervalOrderByNameAsc(itv string, ctx *types.DbCtx) ([]*types.WebApp, error) {
+	exec := s.db.Query
 	query := `SELECT ID, NAME, URL, STATUS, INTERVAL, USER_EMAIL, HEALTHY, CREATED_AT, MODIFIED_AT
 		FROM WEB_APPS
 		WHERE INTERVAL = $1
 		ORDER BY NAME ASC`
-	rows, err := s.db.Query(query, itv)
+
+	if ctx != nil {
+		exec = ctx.Tx.Query
+	}
+
+	rows, err := exec(query, itv)
 
 	if err != nil {
 		return nil, err
@@ -175,12 +245,17 @@ func (s *webAppsStore) GetByIntervalOrderByNameAsc(itv string) ([]*types.WebApp,
 	return collection, nil
 }
 
-func (s *webAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
+func (s *webAppsStore) Insert(wap *types.WebApp, ctx *types.DbCtx) (*types.WebApp, error) {
 	var id string
+	exec := s.db.QueryRow
 	query := `INSERT INTO WEB_APPS (ID, NAME, URL, STATUS, INTERVAL, USER_EMAIL, HEALTHY, CREATED_AT, MODIFIED_AT)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING ID`
 
-	if err := s.db.QueryRow(
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(
 		query,
 		uuid.New().String(),
 		wap.Name,
@@ -199,11 +274,16 @@ func (s *webAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
 	return wap, nil
 }
 
-func (s *webAppsStore) Update(wap *types.WebApp) (*types.WebApp, error) {
+func (s *webAppsStore) Update(wap *types.WebApp, ctx *types.DbCtx) (*types.WebApp, error) {
+	exec := s.db.Exec
 	query := `UPDATE WEB_APPS SET NAME = $1, URL = $2, STATUS = $3, INTERVAL = $4, USER_EMAIL = $5, HEALTHY = $6, MODIFIED_AT = $7
 		WHERE ID = $8 AND USER_EMAIL = $5`
 
-	if _, err := s.db.Exec(
+	if ctx != nil {
+		exec = ctx.Tx.Exec
+	}
+
+	if _, err := exec(
 		query,
 		wap.Name,
 		wap.Url,

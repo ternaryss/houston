@@ -23,7 +23,7 @@ func (c *getHealthChecksCmd) Execute(wid string, qry url.Values) (types.Page, er
 	sortable := []string{"createdAt"}
 	filter := types.NewFilter("", "createdAt desc", "", sortable)
 	filter.Params["webAppId"] = wid
-	quantity, err := c.healthChecksStore.CountByFilter(filter)
+	quantity, err := c.healthChecksStore.CountByFilter(filter, nil)
 
 	if err != nil {
 		return types.EmptyPage(), err
@@ -48,7 +48,7 @@ func (c *getHealthChecksCmd) Execute(wid string, qry url.Values) (types.Page, er
 		return types.EmptyPage(), nil
 	}
 
-	checks, err := c.healthChecksStore.GetByFilter(filter, pagination)
+	checks, err := c.healthChecksStore.GetByFilter(filter, pagination, nil)
 
 	if err != nil {
 		return types.EmptyPage(), err

@@ -3,11 +3,19 @@ package components
 import "github.com/ternaryss/houston/internal/app/types"
 import "fmt"
 
-templ WebAppCard(app *types.WebApp) {
+templ WebAppCard(app *types.WebApp, usr string) {
 	<div class="card">
 		<div class="card-body">
 			<div class="flex items-center justify-between mb-0">
-				<h5 class="card-title">{ app.Name }</h5>
+				<div class="card-title flex items-center gap-2">
+					if app.UserEmail != usr {
+						<span class="badge badge-soft badge-neutral">
+							<span class="hidden md:inline">SHARED</span>
+							<span class="inline md:hidden">S</span>
+						</span>
+					}
+					<h5 class="m-0">{ app.Name }</h5>
+				</div>
 				switch app.Healthy {
 					case types.HealthyOk:
 						<span class="badge badge-success">{ app.Healthy }</span>

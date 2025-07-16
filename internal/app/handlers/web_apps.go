@@ -72,7 +72,7 @@ func (h *WebAppsHandler) GetWebApps(res http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	template := components.WebAppsList(page)
+	template := components.WebAppsList(page, user)
 	helpers.Render(template, res, req)
 }
 
@@ -167,6 +167,23 @@ func (h *WebAppsHandler) DeleteWebApp(res http.ResponseWriter, req *http.Request
 		h.subscribersStore,
 		h.healthChecksStore,
 	).Execute(id, user); err != nil {
+		if err == sql.ErrNoRows {
+			helpers.NotFoundError(res, req)
+			return
+		}
+
+		helpers.InternalServerError(err, res, req)
+		return
+	}
+
+	helpers.Redirect("/", res, req)
+}
+
+func (h *WebAppsHandler) DeleteSubscriber(res http.ResponseWriter, req *http.Request) {
+	user := helpers.AuthPrincipal(req)
+	id := req.PathValue("id")
+
+	if err := cmd.NewDeleteSubscriberCmd(h.webAppsStore, h.subscribersStore).Execute(id, user); err != nil {
 		if err == sql.ErrNoRows {
 			helpers.NotFoundError(res, req)
 			return

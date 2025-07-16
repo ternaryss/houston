@@ -49,10 +49,10 @@ func TestSuccessGetWebApp(tst *testing.T) {
 	user := "test@test.pl"
 	app := types.NewWebApp("Google", "https://google.com", types.Interval1H, user, 200)
 	webAppsStore := stores.NewInMemWebAppsStore()
-	app, _ = webAppsStore.Insert(app)
+	app, _ = webAppsStore.Insert(app, nil)
 	subscribersStore := stores.NewInMemSubscribersStore()
 	subscriber := types.NewSubscriber(app.Id, user)
-	subscribersStore.Insert(subscriber)
+	subscribersStore.Insert(subscriber, nil)
 	cmd := cmd.NewGetWebAppCmd(webAppsStore, subscribersStore)
 
 	// When

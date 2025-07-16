@@ -274,7 +274,7 @@ func TestSignUpUserExists(tst *testing.T) {
 	cmd := cmd.NewSignUpCmd(usersStore)
 	user := types.NewUser("test@test.com", "1qaz@WSX3edc")
 
-	if _, err := usersStore.Insert(user); err != nil {
+	if _, err := usersStore.Insert(user, nil); err != nil {
 		tst.Errorf("User can not be saved: %s", err)
 	}
 
@@ -345,7 +345,7 @@ func TestSuccessSignUp(tst *testing.T) {
 	}
 
 	// Then
-	user, err := usersStore.GetByEmail(form.Email)
+	user, err := usersStore.GetByEmail(form.Email, nil)
 
 	if err != nil {
 		tst.Errorf("Reading user data failed: %s", err)

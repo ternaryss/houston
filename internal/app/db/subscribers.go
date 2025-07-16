@@ -43,20 +43,46 @@ func (s *subscribersStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
-func (s *subscribersStore) DeleteByWebAppId(wid string) error {
+func (s *subscribersStore) DeleteByWebAppId(wid string, ctx *types.DbCtx) error {
+	exec := s.db.Exec
 	query := `DELETE FROM SUBSCRIBERS WHERE WEB_APP_ID = $1`
 
-	if _, err := s.db.Exec(query, wid); err != nil {
+	if ctx != nil {
+		exec = ctx.Tx.Exec
+	}
+
+	if _, err := exec(query, wid); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *subscribersStore) GetByWebAppIdOrderByEmailAsc(wid string) ([]*types.Subscriber, error) {
+func (s *subscribersStore) DeleteByWebAppIdAndEmail(wid, eml string, ctx *types.DbCtx) error {
+	exec := s.db.Exec
+	query := `DELETE FROM SUBSCRIBERS WHERE WEB_APP_ID = $1 AND LOWER(EMAIL) = LOWER($2)`
+
+	if ctx != nil {
+		exec = ctx.Tx.Exec
+	}
+
+	if _, err := exec(query, wid, eml); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *subscribersStore) GetByWebAppIdOrderByEmailAsc(wid string, ctx *types.DbCtx) ([]*types.Subscriber, error) {
+	exec := s.db.Query
 	query := `SELECT ID, WEB_APP_ID, EMAIL, CREATED_AT, MODIFIED_AT
 		FROM SUBSCRIBERS WHERE WEB_APP_ID = $1 ORDER BY EMAIL ASC`
-	rows, err := s.db.Query(query, wid)
+
+	if ctx != nil {
+		exec = ctx.Tx.Query
+	}
+
+	rows, err := exec(query, wid)
 
 	if err != nil {
 		return nil, err
@@ -88,12 +114,17 @@ func (s *subscribersStore) GetByWebAppIdOrderByEmailAsc(wid string) ([]*types.Su
 	return collection, nil
 }
 
-func (s *subscribersStore) Insert(sub *types.Subscriber) (*types.Subscriber, error) {
+func (s *subscribersStore) Insert(sub *types.Subscriber, ctx *types.DbCtx) (*types.Subscriber, error) {
 	var id int64
+	exec := s.db.QueryRow
 	query := `INSERT INTO SUBSCRIBERS (WEB_APP_ID, EMAIL, CREATED_AT, MODIFIED_AT)
 		VALUES ($1, $2, $3, $4) RETURNING ID`
 
-	if err := s.db.QueryRow(
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(
 		query,
 		sub.WebAppId,
 		sub.Email,

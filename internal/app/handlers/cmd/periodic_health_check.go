@@ -59,13 +59,13 @@ func (c *periodicHealthCheckCmd) checkHealth(ctx context.Context, app *types.Web
 		return
 	}
 
-	if _, err := c.healthChecksStore.Insert(health); err != nil {
+	if _, err := c.healthChecksStore.Insert(health, tx); err != nil {
 		slog.Error("Health check insert failed", "appId", app.Id, "err", err)
 		c.healthChecksStore.Rollback(tx)
 		return
 	}
 
-	if _, err := c.webAppsStore.Update(app); err != nil {
+	if _, err := c.webAppsStore.Update(app, tx); err != nil {
 		slog.Error("Web application health status update failed", "appId", app.Id, "err", err)
 		c.healthChecksStore.Rollback(tx)
 		return
@@ -80,7 +80,7 @@ func (c *periodicHealthCheckCmd) checkHealth(ctx context.Context, app *types.Web
 
 func (c *periodicHealthCheckCmd) Execute(itv string) {
 	slog.Info("Checking health", "interval", itv)
-	apps, err := c.webAppsStore.GetByIntervalOrderByNameAsc(itv)
+	apps, err := c.webAppsStore.GetByIntervalOrderByNameAsc(itv, nil)
 
 	if err != nil {
 		slog.Error("Fetching web applications failed", "err", err)

@@ -33,11 +33,11 @@ func (s *inMemWebAppsStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
-func (s *inMemWebAppsStore) CountByFilter(ftr types.Filter) (int, error) {
+func (s *inMemWebAppsStore) CountByFilter(ftr types.Filter, ctx *types.DbCtx) (int, error) {
 	return -1, nil
 }
 
-func (s *inMemWebAppsStore) DeleteByIdAndUserEmail(id, usr string) error {
+func (s *inMemWebAppsStore) DeleteByIdAndUserEmail(id, usr string, ctx *types.DbCtx) error {
 	app, exists := s.data[id]
 
 	if !exists || !strings.EqualFold(app.UserEmail, usr) {
@@ -49,11 +49,11 @@ func (s *inMemWebAppsStore) DeleteByIdAndUserEmail(id, usr string) error {
 	return nil
 }
 
-func (s *inMemWebAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.WebApp, error) {
+func (s *inMemWebAppsStore) GetByFilter(ftr types.Filter, pag types.Pagination, ctx *types.DbCtx) ([]*types.WebApp, error) {
 	return []*types.WebApp{}, nil
 }
 
-func (s *inMemWebAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, error) {
+func (s *inMemWebAppsStore) GetByIdAndUserEmail(id, usr string, ctx *types.DbCtx) (*types.WebApp, error) {
 	app, exists := s.data[id]
 
 	if !exists || !strings.EqualFold(app.UserEmail, usr) {
@@ -63,7 +63,7 @@ func (s *inMemWebAppsStore) GetByIdAndUserEmail(id, usr string) (*types.WebApp, 
 	return app, nil
 }
 
-func (s *inMemWebAppsStore) GetByIntervalOrderByNameAsc(itv string) ([]*types.WebApp, error) {
+func (s *inMemWebAppsStore) GetByIntervalOrderByNameAsc(itv string, ctx *types.DbCtx) ([]*types.WebApp, error) {
 	var result []*types.WebApp
 
 	for _, app := range s.data {
@@ -79,7 +79,7 @@ func (s *inMemWebAppsStore) GetByIntervalOrderByNameAsc(itv string) ([]*types.We
 	return result, nil
 }
 
-func (s *inMemWebAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
+func (s *inMemWebAppsStore) Insert(wap *types.WebApp, ctx *types.DbCtx) (*types.WebApp, error) {
 	id := uuid.New().String()
 
 	if _, exists := s.data[id]; exists {
@@ -92,7 +92,7 @@ func (s *inMemWebAppsStore) Insert(wap *types.WebApp) (*types.WebApp, error) {
 	return wap, nil
 }
 
-func (s *inMemWebAppsStore) Update(wap *types.WebApp) (*types.WebApp, error) {
+func (s *inMemWebAppsStore) Update(wap *types.WebApp, ctx *types.DbCtx) (*types.WebApp, error) {
 	app, exists := s.data[wap.Id]
 
 	if !exists || !strings.EqualFold(app.UserEmail, wap.UserEmail) {

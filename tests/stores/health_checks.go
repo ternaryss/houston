@@ -32,11 +32,11 @@ func (s *inMemHealthChecksStore) Rollback(ctx *types.DbCtx) error {
 	return nil
 }
 
-func (s *inMemHealthChecksStore) CountByFilter(ftr types.Filter) (int, error) {
+func (s *inMemHealthChecksStore) CountByFilter(ftr types.Filter, ctx *types.DbCtx) (int, error) {
 	return -1, nil
 }
 
-func (s *inMemHealthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time) error {
+func (s *inMemHealthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time, ctx *types.DbCtx) error {
 	for id, health := range s.data {
 		if health.CreatedAt.Before(cre) || health.CreatedAt.Equal(cre) {
 			delete(s.data, id)
@@ -46,7 +46,7 @@ func (s *inMemHealthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time) error
 	return nil
 }
 
-func (s *inMemHealthChecksStore) DeleteByWebAppId(wid string) error {
+func (s *inMemHealthChecksStore) DeleteByWebAppId(wid string, ctx *types.DbCtx) error {
 	for id, health := range s.data {
 		if health.WebAppId == wid {
 			delete(s.data, id)
@@ -56,11 +56,11 @@ func (s *inMemHealthChecksStore) DeleteByWebAppId(wid string) error {
 	return nil
 }
 
-func (s *inMemHealthChecksStore) GetByFilter(ftr types.Filter, pag types.Pagination) ([]*types.HealthCheck, error) {
+func (s *inMemHealthChecksStore) GetByFilter(ftr types.Filter, pag types.Pagination, ctx *types.DbCtx) ([]*types.HealthCheck, error) {
 	return []*types.HealthCheck{}, nil
 }
 
-func (s *inMemHealthChecksStore) GetByWebAppId(wid string) ([]*types.HealthCheck, error) {
+func (s *inMemHealthChecksStore) GetByWebAppId(wid string, ctx *types.DbCtx) ([]*types.HealthCheck, error) {
 	var collection []*types.HealthCheck
 
 	for _, health := range s.data {
@@ -72,7 +72,7 @@ func (s *inMemHealthChecksStore) GetByWebAppId(wid string) ([]*types.HealthCheck
 	return collection, nil
 }
 
-func (s *inMemHealthChecksStore) GetFirstByWebAppIdOrderByCreatedAtDesc(wid string) (*types.HealthCheck, error) {
+func (s *inMemHealthChecksStore) GetFirstByWebAppIdOrderByCreatedAtDesc(wid string, ctx *types.DbCtx) (*types.HealthCheck, error) {
 	var latest *types.HealthCheck
 
 	for _, health := range s.data {
@@ -92,7 +92,7 @@ func (s *inMemHealthChecksStore) GetFirstByWebAppIdOrderByCreatedAtDesc(wid stri
 	return latest, nil
 }
 
-func (s *inMemHealthChecksStore) Insert(hck *types.HealthCheck) (*types.HealthCheck, error) {
+func (s *inMemHealthChecksStore) Insert(hck *types.HealthCheck, ctx *types.DbCtx) (*types.HealthCheck, error) {
 	s.sequence++
 
 	if _, exists := s.data[s.sequence]; exists {
