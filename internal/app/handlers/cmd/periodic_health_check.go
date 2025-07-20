@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 	"net/http"
 	"time"
@@ -13,15 +14,52 @@ type periodicHealthCheckCmd struct {
 	timeout           int
 	concurrent        int
 	webAppsStore      types.WebAppsStore
+	subscribersStore  types.SubscribersStore
 	healthChecksStore types.HealthChecksStore
+	emailClient       types.EmailClient
 }
 
-func NewPeriodicHealthCheckCmd(was types.WebAppsStore, hcs types.HealthChecksStore) *periodicHealthCheckCmd {
+func NewPeriodicHealthCheckCmd(
+	was types.WebAppsStore,
+	sus types.SubscribersStore,
+	hcs types.HealthChecksStore,
+	emc types.EmailClient,
+) *periodicHealthCheckCmd {
 	return &periodicHealthCheckCmd{
 		timeout:           5,
 		concurrent:        10,
 		webAppsStore:      was,
+		subscribersStore:  sus,
 		healthChecksStore: hcs,
+		emailClient:       emc,
+	}
+}
+
+func (c *periodicHealthCheckCmd) notify(app *types.WebApp, acl, lst *types.HealthCheck) {
+	var notification types.Message
+	slog.Info("Notifying about web application health", "app", app, "actual", acl, "last", lst)
+
+	if lst != nil && lst.Status == acl.Status {
+		slog.Info("Notifying aborted, no status change", "appId", app.Id)
+		return
+	}
+
+	if acl.Status == app.Status {
+		notification = types.NewAliveMessage(app, acl)
+	} else {
+		notification = types.NewNotAliveMessage(app, acl)
+	}
+
+	subscribers, err := c.subscribersStore.GetByWebAppIdOrderByEmailAsc(app.Id, nil)
+
+	if err != nil {
+		slog.Error("Fetching subscribers failed", "appId", app.Id, "err", err)
+	}
+
+	for _, subscriber := range subscribers {
+		if err := c.emailClient.SendEmail(subscriber.Email, notification.Subject, notification.Content); err != nil {
+			slog.Error("Sending notification failed", "appId", app.Id, "subscriber", subscriber.Email, "err", err)
+		}
 	}
 }
 
@@ -31,6 +69,12 @@ func (c *periodicHealthCheckCmd) checkHealth(ctx context.Context, app *types.Web
 	status := types.HealthyOk
 	requestCtx, cancel := context.WithTimeout(ctx, time.Duration(c.timeout)*time.Second)
 	defer cancel()
+	latest, err := c.healthChecksStore.GetFirstByWebAppIdOrderByCreatedAtDesc(app.Id, nil)
+
+	if err != nil && err != sql.ErrNoRows {
+		slog.Error("Fetching latest health check failed", "appId", app.Id, "err", err)
+		return
+	}
 
 	if request, err := http.NewRequestWithContext(requestCtx, http.MethodGet, app.Url, nil); err != nil {
 		slog.Error("Creation of HTTP request failed", "appId", app.Id, "err", err)
@@ -75,6 +119,7 @@ func (c *periodicHealthCheckCmd) checkHealth(ctx context.Context, app *types.Web
 		slog.Error("Commit of transaction failed", "appId", app.Id, "err", err)
 	}
 
+	c.notify(app, health, latest)
 	slog.Info("Health check executed", "app", app)
 }
 

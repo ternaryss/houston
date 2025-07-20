@@ -2,6 +2,10 @@
 
 History of **Houston we have (no) problem** application with changes description.
 
+## Next release
+
+- `FEATURE` Health check e-mail notification
+
 ## 0.3.0 (16.07.2025 - unpublished)
 
 - `FEATURE` Cancel web application subscription

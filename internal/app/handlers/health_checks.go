@@ -16,6 +16,7 @@ type HealthChecksHandler struct {
 	webAppsStore      types.WebAppsStore
 	subscribersStore  types.SubscribersStore
 	healthChecksStore types.HealthChecksStore
+	emailClient       types.EmailClient
 }
 
 func NewHealthChecksHandler(
@@ -23,12 +24,14 @@ func NewHealthChecksHandler(
 	was types.WebAppsStore,
 	sus types.SubscribersStore,
 	hcs types.HealthChecksStore,
+	emc types.EmailClient,
 ) *HealthChecksHandler {
 	return &HealthChecksHandler{
 		settings:          stg,
 		webAppsStore:      was,
 		subscribersStore:  sus,
 		healthChecksStore: hcs,
+		emailClient:       emc,
 	}
 }
 
@@ -59,7 +62,12 @@ func (h *HealthChecksHandler) GetHealthChecks(res http.ResponseWriter, req *http
 }
 
 func (h *HealthChecksHandler) PeriodicHealthCheck(itv string) {
-	cmd.NewPeriodicHealthCheckCmd(h.webAppsStore, h.healthChecksStore).Execute(itv)
+	cmd.NewPeriodicHealthCheckCmd(
+		h.webAppsStore,
+		h.subscribersStore,
+		h.healthChecksStore,
+		h.emailClient,
+	).Execute(itv)
 }
 
 func (h *HealthChecksHandler) HealthChecksRetention() {

@@ -20,3 +20,10 @@ authorization:
 retention:
   enabled: false
   older-than: 30
+
+smtp:
+  enabled: false
+  host: "smtp"
+  port: 1025
+  user: "no-reply@houston.com"
+  from: "Houston <no-reply@houston.com>"
