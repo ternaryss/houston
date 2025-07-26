@@ -119,6 +119,9 @@ templ WebAppReadonlyForm(app *types.WebApp, sus []*types.Subscriber, usr string)
 				</div>
 			}
 			<div class="col-span-2">
+				<h5 class="text-base-content text-lg px-4">Health</h5>
+				<hr class="my-4"/>
+				<div id="doughnutHealthChart" class="mb-4" hx-get={ fmt.Sprintf("/web-apps/%s/health/chart", app.Id) } hx-trigger="load" hx-target="#doughnutHealthChart" hx-swap="outerHTML"></div>
 				<div id="health" hx-get={ fmt.Sprintf("/web-apps/%s/health", app.Id) } hx-trigger="load" hx-target="#health" hx-swap="outerHTML"></div>
 			</div>
 		</form>
@@ -150,4 +153,7 @@ templ WebAppReadonlyForm(app *types.WebApp, sus []*types.Subscriber, usr string)
 			}
 		});
 	</script>
+	<script src="/public/js/lodash.js"></script>
+	<script src="/public/js/apexcharts.js"></script>
+	<script src="/public/js/helper-apexcharts.js"></script>
 }

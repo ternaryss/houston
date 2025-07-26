@@ -6,10 +6,8 @@ import (
 	"time"
 )
 
-templ HealthChecksList(app *types.WebApp, pag types.Page) {
+templ HealthChecksList(app *types.WebApp, pag types.Page[*types.HealthCheck]) {
 	<div id="health">
-		<h5 class="text-base-content text-lg px-4">Health</h5>
-		<hr class="my-4"/>
 		if len(pag.Content) != 0 {
 			<div class="flex flex-col px-4 overflow-x-auto">
 				<table class="table-striped table">
@@ -22,11 +20,11 @@ templ HealthChecksList(app *types.WebApp, pag types.Page) {
 					<tbody>
 						for _, health := range pag.Content {
 							<tr>
-								<td class="text-nowrap" data-utc={ health.(*types.HealthCheck).CreatedAt.Format(time.RFC3339) }></td>
-								if health.(*types.HealthCheck).Status == app.Status {
-									<td><span class="badge badge-success">{ health.(*types.HealthCheck).Status }</span></td>
+								<td class="text-nowrap" data-utc={ health.CreatedAt.Format(time.RFC3339) }></td>
+								if health.Status == app.Status {
+									<td><span class="badge badge-success">{ health.Status }</span></td>
 								} else {
-									<td><span class="badge badge-error">{ health.(*types.HealthCheck).Status }</span></td>
+									<td><span class="badge badge-error">{ health.Status }</span></td>
 								}
 							</tr>
 						}

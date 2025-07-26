@@ -26,3 +26,15 @@ func NewNotAliveMessage(app *WebApp, health *HealthCheck) Message {
 		Content: msg,
 	}
 }
+
+type HealthStats struct {
+	Up   int
+	Down int
+}
+
+func NewHealthStats(up, down int) HealthStats {
+	return HealthStats{
+		Up:   up,
+		Down: down,
+	}
+}

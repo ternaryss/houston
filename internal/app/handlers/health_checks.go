@@ -50,7 +50,7 @@ func (h *HealthChecksHandler) GetHealthChecks(res http.ResponseWriter, req *http
 		return
 	}
 
-	page, err := cmd.NewGetHealthChecksCmd(h.healthChecksStore).Execute(id, req.URL.Query())
+	page, err := cmd.NewGetHealthChecksCmd(h.healthChecksStore).Execute(app.Id, req.URL.Query())
 
 	if err != nil {
 		helpers.InternalServerError(err, res, req)
@@ -58,6 +58,32 @@ func (h *HealthChecksHandler) GetHealthChecks(res http.ResponseWriter, req *http
 	}
 
 	template := components.HealthChecksList(app, page)
+	helpers.Render(template, res, req)
+}
+
+func (h *HealthChecksHandler) GetDoughnutHealthChart(res http.ResponseWriter, req *http.Request) {
+	user := helpers.AuthPrincipal(req)
+	id := req.PathValue("id")
+	app, _, err := cmd.NewGetWebAppCmd(h.webAppsStore, h.subscribersStore).Execute(id, user)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			helpers.NotFoundError(res, req)
+			return
+		}
+
+		helpers.InternalServerError(err, res, req)
+		return
+	}
+
+	health, err := cmd.NewGetDoughnutHealthChartCmd(h.healthChecksStore).Execute(app)
+
+	if err != nil {
+		helpers.InternalServerError(err, res, req)
+		return
+	}
+
+	template := components.DoughnutHealthChart(health)
 	helpers.Render(template, res, req)
 }
 

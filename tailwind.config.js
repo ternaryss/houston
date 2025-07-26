@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./views/**/*.{templ,html,js}"],
+  content: [
+    "./node_modules/apexcharts/**/*.js",
+    "./node_modules/flyonui/dist/js/helper-apexcharts.js",
+    "./views/**/*.{templ,html,js}"
+  ],
   theme: {
     extend: {},
   },
@@ -9,6 +13,7 @@ module.exports = {
   ],
   flyonui: {
     themes: ["dark"],
-    darkTheme: "dark"
+    darkTheme: "dark",
+    vendors: true
   }
 }

@@ -60,6 +60,38 @@ func (s *healthChecksStore) CountByFilter(ftr types.Filter, ctx *types.DbCtx) (i
 	return quantity, nil
 }
 
+func (s *healthChecksStore) CountByWebAppIdAndNotStatus(wid string, sts int, ctx *types.DbCtx) (int, error) {
+	var quantity int
+	exec := s.db.QueryRow
+	query := `SELECT COUNT(1) FROM HEALTH_CHECKS WHERE WEB_APP_ID = $1 AND STATUS <> $2`
+
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(query, wid, sts).Scan(&quantity); err != nil {
+		return -1, err
+	}
+
+	return quantity, nil
+}
+
+func (s *healthChecksStore) CountByWebAppIdAndStatus(wid string, sts int, ctx *types.DbCtx) (int, error) {
+	var quantity int
+	exec := s.db.QueryRow
+	query := `SELECT COUNT(1) FROM HEALTH_CHECKS WHERE WEB_APP_ID = $1 AND STATUS = $2`
+
+	if ctx != nil {
+		exec = ctx.Tx.QueryRow
+	}
+
+	if err := exec(query, wid, sts).Scan(&quantity); err != nil {
+		return -1, err
+	}
+
+	return quantity, nil
+}
+
 func (s *healthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time, ctx *types.DbCtx) error {
 	exec := s.db.Exec
 	query := `DELETE FROM HEALTH_CHECKS WHERE CREATED_AT <= $1`

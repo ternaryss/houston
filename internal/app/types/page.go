@@ -5,18 +5,16 @@ const (
 	DefaultPageSize int = 25
 )
 
-type PageContent any
-
-type Page struct {
+type Page[T any] struct {
 	Current  int
 	All      int
 	Size     int
 	Pageable int
-	Content  []PageContent
+	Content  []T
 }
 
-func NewPage(pagination Pagination, content []PageContent) Page {
-	return Page{
+func NewPage[T any](pagination Pagination, content []T) Page[T] {
+	return Page[T]{
 		Current:  pagination.Page,
 		All:      pagination.Pages,
 		Size:     pagination.Size,
@@ -25,8 +23,8 @@ func NewPage(pagination Pagination, content []PageContent) Page {
 	}
 }
 
-func EmptyPage() Page {
-	return Page{}
+func EmptyPage[T any]() Page[T] {
+	return Page[T]{}
 }
 
 type Pagination struct {
