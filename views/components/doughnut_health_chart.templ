@@ -1,0 +1,79 @@
+package components
+
+import "github.com/ternaryss/houston/internal/app/types"
+
+templ DoughnutHealthChart(hth types.HealthStats) {
+	if hth.Up != 0 || hth.Down != 0 {
+		<div id="doughnutHealthChart" class="mb-4"></div>
+		<script>
+			buildChart("#doughnutHealthChart", mode => ({
+				chart: {
+					height: 300,
+					type: "donut"
+				},
+				plotOptions: {
+					pie: {
+						donut: {
+							size: "70%",
+							labels: {
+								show: true,
+								name: {
+									fontSize: "2rem"
+								},
+								value: {
+									fontSize: "1.5rem",
+									color: "oklch(var(--bc) / 0.9)",
+									formatter: function (val) {
+										return parseInt(val, 10) + "%"
+									}
+								},
+								total: {
+									show: true,
+									fontSize: "1rem",
+									label: "Healthy",
+									formatter: function (w) {
+										const series = w.globals.seriesTotals;
+										const sum = series.reduce((a, b) => a + b, 0);
+										return sum > 0 ? Math.round(series[0] / sum * 100) + "%" : "0%";
+									}
+								}
+							}
+						}
+					}
+				},
+				series: [{{ hth.Up }}, {{ hth.Down }}],
+				labels: ["Up", "Down"],
+				colors: [
+					"oklch(var(--su))",
+					"oklch(var(--er))"
+				],
+				legend: {
+					show: true,
+					position: "bottom",
+					markers: {
+						offsetX: -3
+					},
+					labels: {
+						useSeriesColors: true
+					}
+				},
+				dataLabels: {
+					enabled: false
+				},
+				stroke: {
+					show: false
+				},
+				states: {
+					hover: {
+						filter: {
+							type: "none"
+						}
+					}
+				},
+				tooltip: {
+					enabled: true
+				}
+			}));
+		</script>
+	}
+}

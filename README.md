@@ -124,8 +124,28 @@ By default, in compose file, all needed data are linked to the container as volu
 2. `./data/app.db` - SQLite database file
 3. `./logs` - application logs
 
-Read to use image for download is always available at [Docker Hub](https://hub.docker.com). It is recommended to link
+Ready to use image for download is always available at [Docker Hub](https://hub.docker.com). It is recommended to link
 above data to the running container for data persistence.
+
+### Mailing
+
+The main aim of Houston is to notify user about changes in web applications health checks. By default mailing client
+is not configured - notifications are visible only in console output. More info about configuration can be found
+in [Settings](#Settings) chapter. There is an option to test real life scenerio with usage of SMTP server. When running
+project with usage of **docker compose**, `maildev` can be used to test notifications by SMTP. First of all,
+application needs to be configured:
+
+```yaml
+smtp:
+  enabled: true
+  host: "smtp"
+  port: 1025
+  user: "no-reply@houston.com"
+  from: "Houston <no-reply@houston.com>"
+```
+
+After running application with **docker compose** and this configuration, e-mail client will be accessible on
+[local machine](http://127.0.0.1:1080). Here, sent e-mail notifications can be confirmed.
 
 ## Settings
 
@@ -176,10 +196,25 @@ authorization:
 
 # Health checks data retention configuration
 retention:
-  # Retention enabled
+  # Retention enabled?
   enabled: false
   # Delete health checks data older than X days
   older-than: 30
+
+# E-mail notifications configuration
+smtp:
+  # E-mail notifications enabled (by default log to console)?
+  enabled: false
+  # SMTP server address
+  host: ""
+  # SMTP server port
+  port: -1
+  # SMTP server username
+  user: ""
+  # SMTP server password
+  password: ""
+  # E-mail sender (by default username will be used)
+  from: ""
 ```
 
 ## Tests

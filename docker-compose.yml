@@ -1,10 +1,16 @@
 services:
+  smtp:
+    image: maildev/maildev:2.2.1
+    env_file: ./configs/maildev.env
+    ports:
+      - 1025:1025
+      - 1080:1080
+
   houston:
-    image: houston:dev
-    build: .
+    image: ternaryss/houston:1.0.0
     ports:
       - 8080:8080
     volumes:
       - ./configs/app.yml:/app/app.yml:r
-      - ./data/app.db:/app/data/app.db:rw
+      - ./data:/app/data:rw
       - ./logs:/app/logs:rw

@@ -11,6 +11,7 @@ import (
 	"github.com/ternaryss/houston/internal/app/db"
 	"github.com/ternaryss/houston/internal/app/handlers"
 	icmd "github.com/ternaryss/houston/internal/app/handlers/cmd"
+	"github.com/ternaryss/houston/internal/app/mail"
 	"github.com/ternaryss/houston/internal/app/settings"
 	"github.com/ternaryss/houston/internal/app/types"
 	"github.com/ternaryss/houston/internal/app/web"
@@ -21,10 +22,17 @@ var rootCmd = &cobra.Command{
 	Short: "Houston we have (no) problem - periodic web apps health check",
 	Long:  "Houston is a lightweight and efficient web application designed for monitoring the availability of other web applications. Built with simplicity in mind, it provides an easy-to-use alternative to complex monitoring solutions like Grafana.",
 	Run: func(cmd *cobra.Command, ags []string) {
+		var emailClient types.EmailClient
 		settings := settings.LoadSettings()
 		dbProvider := db.NewDbProvider(settings)
 		defer dbProvider.CloseConnection()
 		dbProvider.MigrateDatabase()
+		emailClient = mail.NewConsoleClient(settings)
+
+		if settings.Smtp.Enabled {
+			emailClient = mail.NewSmtpClient(settings)
+		}
+
 		usersStore := db.NewUsersStore(dbProvider.Db())
 		webAppsStore := db.NewWebAppsStore(dbProvider.Db())
 		subscribersStore := db.NewSubscribersStore(dbProvider.Db())
@@ -32,7 +40,7 @@ var rootCmd = &cobra.Command{
 		errorsHandler := handlers.NewErrorsHandler()
 		dashboardHandler := handlers.NewDashboardHandler(webAppsStore)
 		webAppsHandler := handlers.NewWebAppsHandler(webAppsStore, subscribersStore, healthChecksStore)
-		healthChecksHandler := handlers.NewHealthChecksHandler(settings, webAppsStore, subscribersStore, healthChecksStore)
+		healthChecksHandler := handlers.NewHealthChecksHandler(settings, webAppsStore, subscribersStore, healthChecksStore, emailClient)
 		usersHandler := handlers.NewUsersHandler(settings, usersStore)
 		retentionScheduler := cron.NewRetentionScheduler(settings, healthChecksHandler)
 		fiveMinutesInterval := cron.NewFiveMinutesIntervalScheduler(healthChecksHandler)

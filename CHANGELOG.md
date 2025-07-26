@@ -2,6 +2,11 @@
 
 History of **Houston we have (no) problem** application with changes description.
 
+## 1.0.0 (26.07.2025)
+
+- `FEATURE` Doughnut health check chart
+- `FEATURE` Health check e-mail notification
+
 ## 0.3.0 (16.07.2025 - unpublished)
 
 - `FEATURE` Cancel web application subscription

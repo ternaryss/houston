@@ -18,7 +18,7 @@ func NewGetWebAppsCmd(was types.WebAppsStore) *getWebAppsCmd {
 	}
 }
 
-func (c *getWebAppsCmd) Execute(qry url.Values, usr string) (types.Page, error) {
+func (c *getWebAppsCmd) Execute(qry url.Values, usr string) (types.Page[*types.WebApp], error) {
 	slog.Info("Fetching web applications", "query", qry, "user", usr)
 	sortable := []string{"name", "userEmail", "createdAt"}
 	filter := types.NewFilter("", "name asc", "", sortable)
@@ -27,7 +27,7 @@ func (c *getWebAppsCmd) Execute(qry url.Values, usr string) (types.Page, error) 
 	slog.Info("Web applications counted", "quantity", quantity, "filter", filter)
 
 	if err != nil {
-		return types.EmptyPage(), err
+		return types.EmptyPage[*types.WebApp](), err
 	}
 
 	page, err := strconv.Atoi(qry.Get("page"))
@@ -46,22 +46,16 @@ func (c *getWebAppsCmd) Execute(qry url.Values, usr string) (types.Page, error) 
 
 	if !pagination.IsValid() {
 		slog.Warn("Pagination not valid", "pagination", pagination)
-		return types.EmptyPage(), nil
+		return types.EmptyPage[*types.WebApp](), nil
 	}
 
 	apps, err := c.webAppsStore.GetByFilter(filter, pagination, nil)
 
 	if err != nil {
-		return types.EmptyPage(), err
+		return types.EmptyPage[*types.WebApp](), err
 	}
 
-	content := []types.PageContent{}
+	slog.Info("Web applications fetched", "filter", filter, "pagination", pagination, "contentSize", len(apps))
 
-	for _, app := range apps {
-		content = append(content, app)
-	}
-
-	slog.Info("Web applications fetched", "filter", filter, "pagination", pagination, "contentSize", len(content))
-
-	return types.NewPage(pagination, content), nil
+	return types.NewPage(pagination, apps), nil
 }

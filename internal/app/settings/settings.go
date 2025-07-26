@@ -42,12 +42,22 @@ type retention struct {
 	OlderThan int  `yaml:"older-than"`
 }
 
+type smtp struct {
+	Enabled  bool   `yaml:"enabled"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	From     string `yaml:"from"`
+}
+
 type Settings struct {
 	Logs          logs          `yaml:"logs"`
 	Server        server        `yaml:"server"`
 	Database      database      `yaml:"database"`
 	Authorization authorization `yaml:"authorization"`
 	Retention     retention     `yaml:"retention"`
+	Smtp          smtp          `yaml:"smtp"`
 }
 
 var loadedSettings *Settings
@@ -77,6 +87,14 @@ func defaultSettings() *Settings {
 		Retention: retention{
 			Enabled:   false,
 			OlderThan: 30,
+		},
+		Smtp: smtp{
+			Enabled:  false,
+			Host:     "",
+			Port:     -1,
+			User:     "",
+			Password: "",
+			From:     "",
 		},
 	}
 }

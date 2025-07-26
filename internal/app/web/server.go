@@ -69,6 +69,7 @@ func (s *server) routes(rtr *http.ServeMux, ebd bool) {
 	rtr.HandleFunc("DELETE /web-apps/{id}", s.webAppsHandler.DeleteWebApp)
 	rtr.HandleFunc("DELETE /web-apps/{id}/subscribers", s.webAppsHandler.DeleteSubscriber)
 	rtr.HandleFunc("GET /web-apps/{id}/health", s.healthChecksHandler.GetHealthChecks)
+	rtr.HandleFunc("GET /web-apps/{id}/health/chart", s.healthChecksHandler.GetDoughnutHealthChart)
 	rtr.HandleFunc("GET /{$}", s.dashboardHandler.Dashboard)
 	rtr.HandleFunc("/", s.errorsHandler.NotFoundError)
 }

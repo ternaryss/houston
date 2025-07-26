@@ -36,6 +36,30 @@ func (s *inMemHealthChecksStore) CountByFilter(ftr types.Filter, ctx *types.DbCt
 	return -1, nil
 }
 
+func (s *inMemHealthChecksStore) CountByWebAppIdAndNotStatus(wid string, sts int, ctx *types.DbCtx) (int, error) {
+	quantity := 0
+
+	for _, health := range s.data {
+		if health.WebAppId == wid && health.Status != sts {
+			quantity++
+		}
+	}
+
+	return quantity, nil
+}
+
+func (s *inMemHealthChecksStore) CountByWebAppIdAndStatus(wid string, sts int, ctx *types.DbCtx) (int, error) {
+	quantity := 0
+
+	for _, health := range s.data {
+		if health.WebAppId == wid && health.Status == sts {
+			quantity++
+		}
+	}
+
+	return quantity, nil
+}
+
 func (s *inMemHealthChecksStore) DeleteByCreatedAtLowerThan(cre time.Time, ctx *types.DbCtx) error {
 	for id, health := range s.data {
 		if health.CreatedAt.Before(cre) || health.CreatedAt.Equal(cre) {

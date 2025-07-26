@@ -47,6 +47,8 @@ type SubscribersStore interface {
 type HealthChecksStore interface {
 	dbStore
 	CountByFilter(ftr Filter, ctx *DbCtx) (int, error)
+	CountByWebAppIdAndNotStatus(wid string, sts int, ctx *DbCtx) (int, error)
+	CountByWebAppIdAndStatus(wid string, sts int, ctx *DbCtx) (int, error)
 	DeleteByCreatedAtLowerThan(cre time.Time, ctx *DbCtx) error
 	DeleteByWebAppId(wid string, ctx *DbCtx) error
 	GetByFilter(ftr Filter, pag Pagination, ctx *DbCtx) ([]*HealthCheck, error)

@@ -18,7 +18,7 @@ func NewGetHealthChecksCmd(hcs types.HealthChecksStore) *getHealthChecksCmd {
 	}
 }
 
-func (c *getHealthChecksCmd) Execute(wid string, qry url.Values) (types.Page, error) {
+func (c *getHealthChecksCmd) Execute(wid string, qry url.Values) (types.Page[*types.HealthCheck], error) {
 	slog.Info("Fetching web application health checks", "webAppId", wid, "query", qry)
 	sortable := []string{"createdAt"}
 	filter := types.NewFilter("", "createdAt desc", "", sortable)
@@ -26,7 +26,7 @@ func (c *getHealthChecksCmd) Execute(wid string, qry url.Values) (types.Page, er
 	quantity, err := c.healthChecksStore.CountByFilter(filter, nil)
 
 	if err != nil {
-		return types.EmptyPage(), err
+		return types.EmptyPage[*types.HealthCheck](), err
 	}
 
 	page, err := strconv.Atoi(qry.Get("page"))
@@ -45,22 +45,16 @@ func (c *getHealthChecksCmd) Execute(wid string, qry url.Values) (types.Page, er
 
 	if !pagination.IsValid() {
 		slog.Warn("Pagination not valid", "pagination", pagination)
-		return types.EmptyPage(), nil
+		return types.EmptyPage[*types.HealthCheck](), nil
 	}
 
 	checks, err := c.healthChecksStore.GetByFilter(filter, pagination, nil)
 
 	if err != nil {
-		return types.EmptyPage(), err
+		return types.EmptyPage[*types.HealthCheck](), err
 	}
 
-	content := []types.PageContent{}
+	slog.Info("Web application health checks fetched", "filter", filter, "pagination", pagination, "contentSize", len(checks))
 
-	for _, check := range checks {
-		content = append(content, check)
-	}
-
-	slog.Info("Web application health checks fetched", "filter", filter, "pagination", pagination, "contentSize", len(content))
-
-	return types.NewPage(pagination, content), nil
+	return types.NewPage(pagination, checks), nil
 }
