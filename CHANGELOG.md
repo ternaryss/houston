@@ -2,7 +2,7 @@
 
 History of **Houston we have (no) problem** application with changes description.
 
-## Next release
+## 1.0.0 (26.07.2025)
 
 - `FEATURE` Doughnut health check chart
 - `FEATURE` Health check e-mail notification

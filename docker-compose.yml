@@ -7,8 +7,7 @@ services:
       - 1080:1080
 
   houston:
-    image: houston:dev
-    build: .
+    image: ternaryss/houston:1.0.0
     ports:
       - 8080:8080
     volumes:
