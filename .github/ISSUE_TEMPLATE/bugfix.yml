@@ -1,6 +1,6 @@
 name: Bugfix
 description: Internal issue for an accepted bug (created after a bug report is approved)
-title: ""
+title: "[Name the bugfix...]"
 labels: ["bugfix"]
 assignees: []
 

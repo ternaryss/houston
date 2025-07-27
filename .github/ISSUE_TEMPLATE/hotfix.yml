@@ -1,6 +1,6 @@
 name: Hotfix
 description: Internal issue for a critical error that needs immediate resolution
-title: ""
+title: "[Name the hotfix...]"
 labels: ["hotfix"]
 assignees: []
 
