@@ -1,6 +1,6 @@
 name: Feature
 description: Internal issue for an accepted feature (created after a feature request is approved)
-title: "[Feature]: "
+title: ""
 labels: ["feature"]
 assignees: []
 
